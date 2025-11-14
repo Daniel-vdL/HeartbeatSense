@@ -1,79 +1,10 @@
-# Recommended .gitignore for .NET / C# projects
-
-# Visual Studio
-.vs/
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Build results
-bin/
-obj/
-out/
-artifacts/
-Debug/
-Release/
-
-# NuGet
-*.nupkg
-packages/
-.nuget/
-.nuget/packages/
-project.lock.json
-project.fragment.lock.json
-
-# Runtime / publish output
-publish/
-*.runtimeconfig.dev.json
-*.deps.json
-
-# IDEs
-.vscode/
-.idea/
-*.sln.iml
-
-# Test results / coverage
-TestResults/
-coverage/
-*.coverdata
-*.coverage
-*.coveragexml
-*.trx
-
-# Logs, databases, caches
-*.log
-*.sqlite
-*.db
-*.cache
-
-# Secrets / local settings
-secrets.json
-appsettings.Development.json
-local.settings.json
-.env
-.env.*
-
-# Certificates / keys
-*.pfx
-*.key
-*.cer
-
-# Generated files
-*.g.cs
-Generated/
-GeneratedMSBuildEditorConfig.editorconfig
-
-# macOS
+node_modules
 .DS_Store
-.AppleDouble
-.LSOverride
-._*
-
-# Temporary files
-*.tmp
-*.temp
-*.bak
-*.swp
-*.pid
-*.lock
+dist
+dist-ssr
+*.local
+count.txt
+.env
+.nitro
+.tanstack
+.wrangler
