@@ -1,5 +1,5 @@
 {
-  "projectName": "Heartbeat Sense Test",
+  "projectName": "App",
   "mode": "file-router",
   "typescript": true,
   "tailwind": true,
