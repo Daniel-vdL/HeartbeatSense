@@ -10,33 +10,115 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SignupIndexRouteImport } from './routes/signup/index'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
+import { Route as DemoTanstackQueryIndexRouteImport } from './routes/demo/tanstack-query/index'
+import { Route as DemoTableIndexRouteImport } from './routes/demo/table/index'
+import { Route as DemoFormSimpleIndexRouteImport } from './routes/demo/form/simple/index'
+import { Route as DemoFormAddressIndexRouteImport } from './routes/demo/form/address/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignupIndexRoute = SignupIndexRouteImport.update({
+  id: '/signup/',
+  path: '/signup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoTanstackQueryIndexRoute = DemoTanstackQueryIndexRouteImport.update({
+  id: '/demo/tanstack-query/',
+  path: '/demo/tanstack-query/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoTableIndexRoute = DemoTableIndexRouteImport.update({
+  id: '/demo/table/',
+  path: '/demo/table/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoFormSimpleIndexRoute = DemoFormSimpleIndexRouteImport.update({
+  id: '/demo/form/simple/',
+  path: '/demo/form/simple/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoFormAddressIndexRoute = DemoFormAddressIndexRouteImport.update({
+  id: '/demo/form/address/',
+  path: '/demo/form/address/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginIndexRoute
+  '/signup': typeof SignupIndexRoute
+  '/demo/table': typeof DemoTableIndexRoute
+  '/demo/tanstack-query': typeof DemoTanstackQueryIndexRoute
+  '/demo/form/address': typeof DemoFormAddressIndexRoute
+  '/demo/form/simple': typeof DemoFormSimpleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginIndexRoute
+  '/signup': typeof SignupIndexRoute
+  '/demo/table': typeof DemoTableIndexRoute
+  '/demo/tanstack-query': typeof DemoTanstackQueryIndexRoute
+  '/demo/form/address': typeof DemoFormAddressIndexRoute
+  '/demo/form/simple': typeof DemoFormSimpleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login/': typeof LoginIndexRoute
+  '/signup/': typeof SignupIndexRoute
+  '/demo/table/': typeof DemoTableIndexRoute
+  '/demo/tanstack-query/': typeof DemoTanstackQueryIndexRoute
+  '/demo/form/address/': typeof DemoFormAddressIndexRoute
+  '/demo/form/simple/': typeof DemoFormSimpleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/demo/table'
+    | '/demo/tanstack-query'
+    | '/demo/form/address'
+    | '/demo/form/simple'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/demo/table'
+    | '/demo/tanstack-query'
+    | '/demo/form/address'
+    | '/demo/form/simple'
+  id:
+    | '__root__'
+    | '/'
+    | '/login/'
+    | '/signup/'
+    | '/demo/table/'
+    | '/demo/tanstack-query/'
+    | '/demo/form/address/'
+    | '/demo/form/simple/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginIndexRoute: typeof LoginIndexRoute
+  SignupIndexRoute: typeof SignupIndexRoute
+  DemoTableIndexRoute: typeof DemoTableIndexRoute
+  DemoTanstackQueryIndexRoute: typeof DemoTanstackQueryIndexRoute
+  DemoFormAddressIndexRoute: typeof DemoFormAddressIndexRoute
+  DemoFormSimpleIndexRoute: typeof DemoFormSimpleIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +130,59 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/signup/': {
+      id: '/signup/'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login/': {
+      id: '/login/'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/tanstack-query/': {
+      id: '/demo/tanstack-query/'
+      path: '/demo/tanstack-query'
+      fullPath: '/demo/tanstack-query'
+      preLoaderRoute: typeof DemoTanstackQueryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/table/': {
+      id: '/demo/table/'
+      path: '/demo/table'
+      fullPath: '/demo/table'
+      preLoaderRoute: typeof DemoTableIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/form/simple/': {
+      id: '/demo/form/simple/'
+      path: '/demo/form/simple'
+      fullPath: '/demo/form/simple'
+      preLoaderRoute: typeof DemoFormSimpleIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo/form/address/': {
+      id: '/demo/form/address/'
+      path: '/demo/form/address'
+      fullPath: '/demo/form/address'
+      preLoaderRoute: typeof DemoFormAddressIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginIndexRoute: LoginIndexRoute,
+  SignupIndexRoute: SignupIndexRoute,
+  DemoTableIndexRoute: DemoTableIndexRoute,
+  DemoTanstackQueryIndexRoute: DemoTanstackQueryIndexRoute,
+  DemoFormAddressIndexRoute: DemoFormAddressIndexRoute,
+  DemoFormSimpleIndexRoute: DemoFormSimpleIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
