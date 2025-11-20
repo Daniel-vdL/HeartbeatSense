@@ -135,4 +135,10 @@ code {
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Brand title font (Bruno Ace SC) */
+  .brand-title {
+    font-family: 'Bruno Ace SC', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    letter-spacing: 0.5px;
+  }
 }

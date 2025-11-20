@@ -10,33 +10,73 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OverzichtIndexRouteImport } from './routes/overzicht/index'
+import { Route as HomeIndexRouteImport } from './routes/home/index'
+import { Route as DossierIndexRouteImport } from './routes/dossier/index'
+import { Route as ActiviteitIndexRouteImport } from './routes/activiteit/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OverzichtIndexRoute = OverzichtIndexRouteImport.update({
+  id: '/overzicht/',
+  path: '/overzicht/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HomeIndexRoute = HomeIndexRouteImport.update({
+  id: '/home/',
+  path: '/home/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DossierIndexRoute = DossierIndexRouteImport.update({
+  id: '/dossier/',
+  path: '/dossier/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActiviteitIndexRoute = ActiviteitIndexRouteImport.update({
+  id: '/activiteit/',
+  path: '/activiteit/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/activiteit': typeof ActiviteitIndexRoute
+  '/dossier': typeof DossierIndexRoute
+  '/home': typeof HomeIndexRoute
+  '/overzicht': typeof OverzichtIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/activiteit': typeof ActiviteitIndexRoute
+  '/dossier': typeof DossierIndexRoute
+  '/home': typeof HomeIndexRoute
+  '/overzicht': typeof OverzichtIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/activiteit/': typeof ActiviteitIndexRoute
+  '/dossier/': typeof DossierIndexRoute
+  '/home/': typeof HomeIndexRoute
+  '/overzicht/': typeof OverzichtIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/activiteit' | '/dossier' | '/home' | '/overzicht'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/activiteit' | '/dossier' | '/home' | '/overzicht'
+  id: '__root__' | '/' | '/activiteit/' | '/dossier/' | '/home/' | '/overzicht/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ActiviteitIndexRoute: typeof ActiviteitIndexRoute
+  DossierIndexRoute: typeof DossierIndexRoute
+  HomeIndexRoute: typeof HomeIndexRoute
+  OverzichtIndexRoute: typeof OverzichtIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +88,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/overzicht/': {
+      id: '/overzicht/'
+      path: '/overzicht'
+      fullPath: '/overzicht'
+      preLoaderRoute: typeof OverzichtIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/home/': {
+      id: '/home/'
+      path: '/home'
+      fullPath: '/home'
+      preLoaderRoute: typeof HomeIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dossier/': {
+      id: '/dossier/'
+      path: '/dossier'
+      fullPath: '/dossier'
+      preLoaderRoute: typeof DossierIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/activiteit/': {
+      id: '/activiteit/'
+      path: '/activiteit'
+      fullPath: '/activiteit'
+      preLoaderRoute: typeof ActiviteitIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ActiviteitIndexRoute: ActiviteitIndexRoute,
+  DossierIndexRoute: DossierIndexRoute,
+  HomeIndexRoute: HomeIndexRoute,
+  OverzichtIndexRoute: OverzichtIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

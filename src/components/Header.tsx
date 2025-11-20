@@ -8,7 +8,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
+      {/* <header className="p-4 flex items-center bg-gray-800 text-white shadow-lg">
         <button
           onClick={() => setIsOpen(true)}
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
@@ -25,7 +25,7 @@ export default function Header() {
             />
           </Link>
         </h1>
-      </header>
+      </header> */}
 
       <aside
         className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
@@ -60,7 +60,7 @@ export default function Header() {
           {/* Demo Links Start */}
 
           <Link
-            to="/demo/form/simple"
+            to={"/demo/form/simple" as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
@@ -73,7 +73,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/demo/form/address"
+            to={"/demo/form/address" as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
@@ -86,7 +86,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/demo/table"
+            to={"/demo/table" as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
@@ -99,7 +99,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to="/demo/tanstack-query"
+            to={"/demo/tanstack-query" as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
