@@ -14,6 +14,8 @@ import { Route as OverzichtIndexRouteImport } from './routes/overzicht/index'
 import { Route as HomeIndexRouteImport } from './routes/home/index'
 import { Route as DossierIndexRouteImport } from './routes/dossier/index'
 import { Route as ActiviteitIndexRouteImport } from './routes/activiteit/index'
+import { Route as SignupIndexRouteImport } from './routes/signup/index'
+import { Route as LoginIndexRouteImport } from './routes/login/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -38,6 +40,14 @@ const DossierIndexRoute = DossierIndexRouteImport.update({
 const ActiviteitIndexRoute = ActiviteitIndexRouteImport.update({
   id: '/activiteit/',
   path: '/activiteit/',
+const SignupIndexRoute = SignupIndexRouteImport.update({
+  id: '/signup/',
+  path: '/signup/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginIndexRoute = LoginIndexRouteImport.update({
+  id: '/login/',
+  path: '/login/',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -50,10 +60,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginIndexRoute
+  '/signup': typeof SignupIndexRoute
   '/activiteit': typeof ActiviteitIndexRoute
   '/dossier': typeof DossierIndexRoute
   '/home': typeof HomeIndexRoute
   '/overzicht': typeof OverzichtIndexRoute
+  '/login': typeof LoginIndexRoute
+  '/signup': typeof SignupIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport

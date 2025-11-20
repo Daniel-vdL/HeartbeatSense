@@ -133,7 +133,8 @@ code {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background: linear-gradient(135deg, #6b7db8 0%, #8b7db8 50%, #9b8dc8 100%);
+    @apply text-foreground;
   }
 
   /* Brand title font (Bruno Ace SC) */
