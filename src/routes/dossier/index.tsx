@@ -30,7 +30,7 @@ function RouteComponent() {
         <div className="max-w-6xl mx-auto pt-8">
           <div className="flex justify-center">
             <h2 className="brand-title text-white text-3xl sm:text-4xl font-semibold text-center">
-              Mijn Gezondheids Dossier
+              Heartbeat Sense
             </h2>
           </div>
 
@@ -46,7 +46,7 @@ function RouteComponent() {
                 </div>
               </Link>
 
-              <Link to="/home" className="block">
+              <Link to="/activiteit" className="block">
                 <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Activity size={28} />
@@ -56,7 +56,7 @@ function RouteComponent() {
               </Link>
 
               <Link to="/dossier" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-xl scale-105`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-xl scale-105 hover:bg-white/30`}>
                   <div className="bg-purple-100 p-3 rounded-xl flex items-center justify-center">
                     <FileText size={28} />
                   </div>
@@ -69,14 +69,15 @@ function RouteComponent() {
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <TrendingUp size={28} />
                   </div>
-                  <span className="text-sm font-medium text-center">Overzicht</span>
+                  <span className="text-sm font-semibold text-center">Overzicht</span>
                 </div>
-              </Link>
+              </Link> 
             </div>
           </div>
+          <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold"> Mijn Dossier</div>
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Link to="/home" className="block">
+           
               <Card className="bg-white/10 border-white/20 hover:bg-white/20 hover:scale-[1.01] transition-all backdrop-blur-md h-full">
                 <CardHeader>
                   <div className="flex items-center gap-3">
@@ -95,9 +96,9 @@ function RouteComponent() {
                   </div>
                 </CardContent>
               </Card>
-            </Link>
+            
 
-            <Link to="/home" className="block">
+           
               <Card className="bg-white/10 border-white/20 hover:bg-white/20 hover:scale-[1.01] transition-all backdrop-blur-md h-full">
                 <CardHeader>
                   <div className="flex items-center gap-3">
@@ -116,7 +117,7 @@ function RouteComponent() {
                   </div>
                 </CardContent>
               </Card>
-            </Link>
+            
           </div>
 
           <div className="mt-8">
@@ -131,7 +132,7 @@ function RouteComponent() {
               </CardHeader>
               <CardContent>
                 <div className="mt-4 flex flex-col gap-3">
-                  <Link to="/home" className="block">
+                  <Link to="/overzicht" className="block">
                     <div className="flex items-center justify-between bg-black/20 rounded-xl p-4 hover:bg-black/30 transition-colors border border-white/5">
                       <div>
                         <div className="text-sm text-white font-medium">10 nov 2025</div>
@@ -144,7 +145,7 @@ function RouteComponent() {
                     </div>
                   </Link>
                   
-                   <Link to="/home" className="block">
+                   <Link to="/overzicht" className="block">
                     <div className="flex items-center justify-between bg-black/20 rounded-xl p-4 hover:bg-black/30 transition-colors border border-white/5">
                       <div>
                         <div className="text-sm text-white font-medium">09 nov 2025</div>

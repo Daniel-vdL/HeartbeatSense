@@ -31,7 +31,7 @@ function RouteComponent() {
           <div className="flex justify-center mt-8">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-2xl">
               <Link to="/home" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-lg`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-lg hover:bg-white/30`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Heart size={32} />
                   </div>

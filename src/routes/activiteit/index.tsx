@@ -30,7 +30,7 @@ function RouteComponent() {
         <div className="max-w-6xl mx-auto pt-8">
           <div className="flex justify-center">
             <h2 className="brand-title text-white text-3xl sm:text-4xl font-semibold">
-              Mijn Activiteit
+              Heartbeat Sense
             </h2>
           </div>
 
@@ -38,7 +38,7 @@ function RouteComponent() {
           <div className="flex justify-center mt-8">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-2xl">
               <Link to="/home" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-lg`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Heart size={32} />
                   </div>
@@ -46,8 +46,8 @@ function RouteComponent() {
                 </div>
               </Link>
 
-            <Link to="/home" className="block"> {/* AANGEPAST: Was to="/" */}
-              <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30`}>
+            <Link to="/activiteit" className="block"> {/* AANGEPAST: Was to="/" */}
+              <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 hover:bg-white/30`}>
                 <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                   <Activity size={32} />
                 </div>
@@ -75,6 +75,7 @@ function RouteComponent() {
             </div>
           </div>
         </div>
+         <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold"> Mijn Activiteit</div>
       </div>
     </main>
   )
