@@ -1,3 +1,5 @@
+import type React from "react"
+import { useState } from "react"
 import { Link } from "@tanstack/react-router"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -17,10 +19,40 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 
+export type LoginValues = {
+  email: string
+  password: string
+}
+
+type LoginFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
+  onSubmit: (values: LoginValues) => void
+  isLoading?: boolean
+  error?: string
+}
+
 export function LoginForm({
   className,
+  onSubmit,
+  isLoading = false,
+  error,
   ...props
-}: React.ComponentProps<"div">) {
+}: LoginFormProps) {
+  const [values, setValues] = useState<LoginValues>({
+    email: "",
+    password: "",
+  })
+
+  const handleChange =
+    (field: keyof LoginValues) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValues((current) => ({ ...current, [field]: event.target.value }))
+    }
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    onSubmit(values)
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -31,7 +63,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleSubmit}>
             <FieldGroup>
               <Field>
                 <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -40,6 +72,9 @@ export function LoginForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  value={values.email}
+                  onChange={handleChange("email")}
+                  disabled={isLoading}
                 />
               </Field>
               <Field>
@@ -52,11 +87,30 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  value={values.password}
+                  onChange={handleChange("password")}
+                  disabled={isLoading}
+                />
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
-                <Button variant="outline" type="button">
+                {error ? (
+                  <FieldDescription className="text-sm text-red-500">
+                    {error}
+                  </FieldDescription>
+                ) : null}
+                <Button type="submit" disabled={isLoading} className="w-full">
+                  {isLoading ? "Logging in..." : "Login"}
+                </Button>
+                <Button
+                  variant="outline"
+                  type="button"
+                  disabled={isLoading}
+                  className="w-full"
+                >
                   Login with Google
                 </Button>
                 <FieldDescription className="text-center">
