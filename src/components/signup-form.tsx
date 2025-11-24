@@ -28,8 +28,14 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         <form>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">Full Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John Doe" required />
+              <FieldLabel htmlFor="name">First Name</FieldLabel>
+              <Input id="name" type="text" placeholder="John" required />
+              <FieldLabel htmlFor="name">Last Name</FieldLabel>
+              <Input id="name" type="text" placeholder="Doe" required />
+              <FieldLabel htmlFor="age">age</FieldLabel>
+              <Input id="name" type="number" placeholder="20" required />
+              <FieldLabel htmlFor="Gender">Gender</FieldLabel>
+              <Input id="name" type="text" placeholder="male" required />
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -43,6 +49,15 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 We&apos;ll use this to contact you. We will not share your email
                 with anyone else.
               </FieldDescription>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="phone">Phone number</FieldLabel>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+31 6 12345678"
+                required
+              />
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
