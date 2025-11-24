@@ -23,7 +23,7 @@ function RouteComponent() {
     <main className="min-h-screen flex flex-col font-sans" style={{ background: bg }}>
       <header className="p-6">
         <div className="text-white text-sm opacity-80">Welkom terug,</div>
-        <h1 className="brand-title text-white text-2xl font-bold">Yusuf</h1>
+        <h1 className="brand-title text-white text-2xl font-bold">User</h1>
       </header>
 
       <div className="flex-1 px-4 sm:px-8 pb-16">
