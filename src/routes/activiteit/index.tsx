@@ -2,6 +2,7 @@ import { createFileRoute, Link } from '@tanstack/react-router'
 import { User, Heart, Calendar, Activity, FileText, TrendingUp } from 'lucide-react'
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -87,9 +88,15 @@ function RouteComponent() {
         <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold"> Mijn Activiteit</div>
 
         <div className="max-w-6xl mx-auto pt-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-white text-lg font-semibold">Activiteitslog</h3>
+            <Button className="bg-red-300/60 hover:bg-red-300/80 text-white">
+              + Tag toevoegen
+            </Button>
+          </div>
           <div className="bg-white/5 rounded-lg p-6 mt-6">
             <Table className="text-white">
-              <TableCaption className="text-white/80">A list of your recent invoices.</TableCaption>
+              <TableCaption className="text-white/80">A list of your recent readings.</TableCaption>
               <TableHeader>
                 <TableRow className="border-white/20">
                   <TableHead className="w-[100px] text-white">Tijd</TableHead>

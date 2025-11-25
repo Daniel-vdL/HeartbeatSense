@@ -84,7 +84,7 @@ export function LoginForm({
                     href="#"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    
                   </a>
                 </div>
                 <Input
@@ -105,14 +105,7 @@ export function LoginForm({
                 <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? "Logging in..." : "Login"}
                 </Button>
-                <Button
-                  variant="outline"
-                  type="button"
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  Login with Google
-                </Button>
+                {/* removed extra outline button to simplify form */}
                 <FieldDescription className="text-center">
                   Don&apos;t have an account?{' '}
                   <Link to="/signup" className="underline underline-offset-4">

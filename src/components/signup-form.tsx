@@ -13,6 +13,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select"
 import { Link } from '@tanstack/react-router'
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
@@ -33,9 +40,19 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="name">Last Name</FieldLabel>
               <Input id="name" type="text" placeholder="Doe" required />
               <FieldLabel htmlFor="age">age</FieldLabel>
-              <Input id="name" type="number" placeholder="20" required />
-              <FieldLabel htmlFor="Gender">Gender</FieldLabel>
-              <Input id="name" type="text" placeholder="male" required />
+              <Input id="age" type="number" placeholder="20" required min={0} max={100} />
+              
+              <FieldLabel htmlFor="gender">Gender</FieldLabel>
+              <Select defaultValue="male">
+                <SelectTrigger id="gender" className="w-full">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -76,9 +93,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             <FieldGroup>
               <Field>
                 <Button type="submit">Create Account</Button>
-                <Button variant="outline" type="button">
-                  Sign up with Google
-                </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account?{' '}
                   <Link to="/login" className="underline underline-offset-4">

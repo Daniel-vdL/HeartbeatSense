@@ -39,7 +39,7 @@ function RouteComponent() {
                 </div>
               </Link>
 
-              <Link to="/activiteit" className="block"> {/* AANGEPAST: Was to="/" */}
+              <Link to="/activiteit" className="block"> 
                 <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Activity size={32} />
