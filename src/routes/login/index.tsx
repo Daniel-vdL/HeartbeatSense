@@ -1,15 +1,28 @@
-import { createFileRoute, useRouter } from '@tanstack/react-router'
+import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
 import { LoginForm, type LoginValues } from "@/components/ui/login-form"
+import { auth } from "@/lib/auth"
+
+type AuthResponse = {
+  token: string
+  firstName?: string
+  lastName?: string
+  email?: string
+}
 
 export const Route = createFileRoute('/login/')({
   component: Page,
+  beforeLoad: () => {
+    if (auth.isAuthenticated()) {
+      throw redirect({ to: "/home" })
+    }
+  },
 })
 
 export default function Page() {
   const router = useRouter()
 
-  const loginMutation = useMutation<unknown, Error, LoginValues>({
+  const loginMutation = useMutation<AuthResponse, Error, LoginValues>({
     mutationFn: async ({ email, password }: LoginValues) => {
       const response = await fetch("/api/auth/login", {
         method: "POST",
@@ -31,9 +44,22 @@ export default function Page() {
         }
       }
 
-      return response.json()
+      return response.json() as Promise<AuthResponse>
     },
-    onSuccess: async () => {
+    onSuccess: async (data) => {
+      const normalized = {
+        token: data.token,
+        firstName:
+          data.firstName ??
+          (data as Record<string, unknown>).firstname ??
+          (data as Record<string, unknown>).FirstName ??
+          "",
+        lastName: data.lastName ?? "",
+        email: data.email ?? "",
+      }
+      auth.setAuthenticated(true)
+      auth.setToken(normalized.token)
+      auth.setUser(normalized)
       await router.navigate({ to: "/home" })
     },
   })
