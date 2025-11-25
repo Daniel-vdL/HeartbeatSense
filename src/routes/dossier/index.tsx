@@ -64,7 +64,7 @@ function RouteComponent() {
 
               <Link to="/dossier" className="block">
                 <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-xl scale-105 hover:bg-white/30`}>
-                  <div className="bg-purple-100 p-3 rounded-xl flex items-center justify-center">
+                  <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <FileText size={28} />
                   </div>
                   <span className="text-sm font-bold text-center">Mijn Dossier</span>

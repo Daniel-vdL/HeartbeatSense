@@ -15,6 +15,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select"
 import { Link } from '@tanstack/react-router'
 
 export type SignupValues = {
@@ -105,6 +112,7 @@ export function SignupForm({
                 id="age"
                 type="number"
                 placeholder="20"
+                min={0} max={100}
                 required
                 value={values.age}
                 onChange={handleChange("age")}
@@ -120,6 +128,18 @@ export function SignupForm({
                 onChange={handleChange("gender")}
                 disabled={isLoading}
               />
+              
+<!--               <FieldLabel htmlFor="gender">Gender</FieldLabel>
+              <Select defaultValue="male">
+                <SelectTrigger id="gender" className="w-full">
+                  <SelectValue placeholder="Select gender" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select> -->
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -191,14 +211,6 @@ export function SignupForm({
                 ) : null}
                 <Button type="submit" disabled={isLoading} className="w-full">
                   {isLoading ? "Creating account..." : "Create Account"}
-                </Button>
-                <Button
-                  variant="outline"
-                  type="button"
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  Sign up with Google
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account?{' '}
