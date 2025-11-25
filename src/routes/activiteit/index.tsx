@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import { User, Heart, Calendar, Activity, FileText, TrendingUp } from 'lucide-react'
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -12,9 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { auth } from "@/lib/auth"
 
 export const Route = createFileRoute('/activiteit/')({
   component: RouteComponent,
+  beforeLoad: () => {
+    if (!auth.isAuthenticated()) {
+      throw redirect({ to: "/login" })
+    }
+  },
 })
 
 function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
@@ -28,12 +34,13 @@ function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 function RouteComponent() {
   const bg = 'linear-gradient(135deg, #6b5b9f 0%, #8b7db8 50%, #9b8dc8 100%)'
+  const displayName = auth.getDisplayName()
 
   return (
     <main className="min-h-screen flex flex-col" style={{ background: bg }}>
       <header className="p-6">
         <div className="text-white text-sm opacity-80">Welkom terug,</div>
-        <h1 className="brand-title text-white text-2xl font-bold">User</h1>
+        <h1 className="brand-title text-white text-2xl font-bold">{displayName}</h1>
       </header>
 
       <div className="flex-1 px-8 pb-16">

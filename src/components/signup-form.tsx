@@ -1,3 +1,5 @@
+import type React from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -22,7 +24,57 @@ import {
 } from "@/components/ui/select"
 import { Link } from '@tanstack/react-router'
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+export type SignupValues = {
+  firstName: string
+  lastName: string
+  age: string
+  gender: string
+  email: string
+  phone: string
+  password: string
+  confirmPassword: string
+}
+
+type SignupFormProps = Omit<React.ComponentProps<typeof Card>, "onSubmit"> & {
+  onSubmit: (values: SignupValues) => void
+  isLoading?: boolean
+  error?: string
+}
+
+export function SignupForm({
+  onSubmit,
+  isLoading = false,
+  error,
+  ...props
+}: SignupFormProps) {
+  const [values, setValues] = useState<SignupValues>({
+    firstName: "",
+    lastName: "",
+    age: "",
+    gender: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  })
+  const [localError, setLocalError] = useState<string | null>(null)
+
+  const handleChange =
+    (field: keyof SignupValues) =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setValues((current) => ({ ...current, [field]: event.target.value }))
+    }
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (values.password !== values.confirmPassword) {
+      setLocalError("Passwords do not match")
+      return
+    }
+    setLocalError(null)
+    onSubmit(values)
+  }
+
   return (
     <Card {...props}>
       <CardHeader>
@@ -32,17 +84,52 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form>
+        <form onSubmit={handleSubmit}>
           <FieldGroup>
             <Field>
-              <FieldLabel htmlFor="name">First Name</FieldLabel>
-              <Input id="name" type="text" placeholder="John" required />
-              <FieldLabel htmlFor="name">Last Name</FieldLabel>
-              <Input id="name" type="text" placeholder="Doe" required />
-              <FieldLabel htmlFor="age">age</FieldLabel>
-              <Input id="age" type="number" placeholder="20" required min={0} max={100} />
-              
+              <FieldLabel htmlFor="firstName">First Name</FieldLabel>
+              <Input
+                id="firstName"
+                type="text"
+                placeholder="John"
+                required
+                value={values.firstName}
+                onChange={handleChange("firstName")}
+                disabled={isLoading}
+              />
+              <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
+              <Input
+                id="lastName"
+                type="text"
+                placeholder="Doe"
+                required
+                value={values.lastName}
+                onChange={handleChange("lastName")}
+                disabled={isLoading}
+              />
+              <FieldLabel htmlFor="age">Age</FieldLabel>
+              <Input
+                id="age"
+                type="number"
+                placeholder="20"
+                min={0} max={100}
+                required
+                value={values.age}
+                onChange={handleChange("age")}
+                disabled={isLoading}
+              />
               <FieldLabel htmlFor="gender">Gender</FieldLabel>
+              <Input
+                id="gender"
+                type="text"
+                placeholder="male"
+                required
+                value={values.gender}
+                onChange={handleChange("gender")}
+                disabled={isLoading}
+              />
+              
+<!--               <FieldLabel htmlFor="gender">Gender</FieldLabel>
               <Select defaultValue="male">
                 <SelectTrigger id="gender" className="w-full">
                   <SelectValue placeholder="Select gender" />
@@ -52,7 +139,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
-              </Select>
+              </Select> -->
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -61,6 +148,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 type="email"
                 placeholder="m@example.com"
                 required
+                value={values.email}
+                onChange={handleChange("email")}
+                disabled={isLoading}
               />
               <FieldDescription>
                 We&apos;ll use this to contact you. We will not share your email
@@ -74,11 +164,21 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 type="tel"
                 placeholder="+31 6 12345678"
                 required
+                value={values.phone}
+                onChange={handleChange("phone")}
+                disabled={isLoading}
               />
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                type="password"
+                required
+                value={values.password}
+                onChange={handleChange("password")}
+                disabled={isLoading}
+              />
               <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription>
@@ -87,12 +187,31 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <Input id="confirm-password" type="password" required />
+              <Input
+                id="confirm-password"
+                type="password"
+                required
+                value={values.confirmPassword}
+                onChange={handleChange("confirmPassword")}
+                disabled={isLoading}
+              />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
               <Field>
-                <Button type="submit">Create Account</Button>
+                {localError ? (
+                  <FieldDescription className="text-sm text-red-500">
+                    {localError}
+                  </FieldDescription>
+                ) : null}
+                {error ? (
+                  <FieldDescription className="text-sm text-red-500">
+                    {error}
+                  </FieldDescription>
+                ) : null}
+                <Button type="submit" disabled={isLoading} className="w-full">
+                  {isLoading ? "Creating account..." : "Create Account"}
+                </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account?{' '}
                   <Link to="/login" className="underline underline-offset-4">
