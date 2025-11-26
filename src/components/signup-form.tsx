@@ -51,7 +51,7 @@ export function SignupForm({
     firstName: "",
     lastName: "",
     age: "",
-    gender: "",
+    gender: "male",
     email: "",
     phone: "",
     password: "",
@@ -64,6 +64,10 @@ export function SignupForm({
     (event: React.ChangeEvent<HTMLInputElement>) => {
       setValues((current) => ({ ...current, [field]: event.target.value }))
     }
+
+  const handleSelectChange = (field: keyof SignupValues, value: string) => {
+    setValues((current) => ({ ...current, [field]: value }))
+  }
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -118,19 +122,12 @@ export function SignupForm({
                 onChange={handleChange("age")}
                 disabled={isLoading}
               />
+
               <FieldLabel htmlFor="gender">Gender</FieldLabel>
-              <Input
-                id="gender"
-                type="text"
-                placeholder="male"
-                required
+              <Select
                 value={values.gender}
-                onChange={handleChange("gender")}
-                disabled={isLoading}
-              />
-              
-               {/* <FieldLabel htmlFor="gender">Gender</FieldLabel>
-              <Select defaultValue="male">
+                onValueChange={(val) => handleSelectChange("gender", val)}
+              >
                 <SelectTrigger id="gender" className="w-full">
                   <SelectValue placeholder="Select gender" />
                 </SelectTrigger>
@@ -139,7 +136,7 @@ export function SignupForm({
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
-              </Select>  */}
+              </Select> 
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>

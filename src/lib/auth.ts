@@ -1,6 +1,10 @@
 const STORAGE_KEY = "hb_authenticated"
 const STORAGE_USER_KEY = "hb_user"
 const STORAGE_TOKEN_KEY = "hb_token"
+const VALIDATION_MAX_AGE_MS = 5 * 60 * 1000 // 5 minutes
+
+let lastValidationTime = 0
+let inFlightValidation: Promise<boolean> | null = null
 
 export const auth = {
   isAuthenticated(): boolean {
@@ -71,6 +75,19 @@ export const auth = {
       return false
     }
 
+    const now = Date.now()
+    const isFresh = now - lastValidationTime < VALIDATION_MAX_AGE_MS
+    const hasUser = !!this.getUser()
+
+    if (isFresh && hasUser) {
+      return true
+    }
+
+    if (inFlightValidation) {
+      return inFlightValidation
+    }
+
+    inFlightValidation = (async () => {
     try {
       const response = await fetch("/api/auth/me", {
         method: "GET",
@@ -81,6 +98,9 @@ export const auth = {
       })
 
       if (!response.ok) {
+        // 401/403/404/etc -> beschouw als ongeldig
+        lastValidationTime = 0
+        inFlightValidation = null
         this.clear()
         return false
       }
@@ -105,16 +125,28 @@ export const auth = {
         this.setToken(data.token)
       }
 
+      lastValidationTime = Date.now()
+      inFlightValidation = null
       return true
     } catch {
+      lastValidationTime = 0
+      inFlightValidation = null
       this.clear()
       return false
     }
+    })()
+
+    return inFlightValidation
+  },
+  markValidatedNow() {
+    lastValidationTime = Date.now()
   },
   clear() {
     if (typeof window === "undefined") return
     window.localStorage.removeItem(STORAGE_KEY)
     window.localStorage.removeItem(STORAGE_USER_KEY)
     window.localStorage.removeItem(STORAGE_TOKEN_KEY)
+    lastValidationTime = 0
+    inFlightValidation = null
   },
 }
