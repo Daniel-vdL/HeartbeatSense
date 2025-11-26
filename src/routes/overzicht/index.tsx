@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
 import { User, Heart, Calendar, Activity, FileText, TrendingUp, LogOut } from 'lucide-react'
 
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
@@ -24,16 +24,25 @@ function StatRow({ label, value }: { label: string; value: React.ReactNode }) {
 }
 
 function RouteComponent() {
+  const router = useRouter()
   const bg = 'linear-gradient(135deg, #6b5b9f 0%, #8b7db8 50%, #9b8dc8 100%)'
   const displayName = auth.getDisplayName()
+  const handleLogout = async () => {
+    auth.clear()
+    await router.navigate({ to: "/login" })
+  }
 
   return (
     <main className="min-h-screen flex flex-col" style={{ background: bg }}>
       <div className="fixed top-6 right-6 z-40">
-        <Link to="/login" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors"
+        >
           <LogOut size={18} />
           Uitloggen
-        </Link>
+        </button>
       </div>
       <header className="p-6">
         <div className="text-white text-sm opacity-80">Welkom terug,</div>
