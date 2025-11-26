@@ -129,7 +129,7 @@ export function SignupForm({
                 disabled={isLoading}
               />
               
-<!--               <FieldLabel htmlFor="gender">Gender</FieldLabel>
+               {/* <FieldLabel htmlFor="gender">Gender</FieldLabel>
               <Select defaultValue="male">
                 <SelectTrigger id="gender" className="w-full">
                   <SelectValue placeholder="Select gender" />
@@ -139,7 +139,7 @@ export function SignupForm({
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
-              </Select> -->
+              </Select>  */}
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
