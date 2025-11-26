@@ -6,8 +6,9 @@ import { auth } from "@/lib/auth"
 
 export const Route = createFileRoute('/overzicht/')({
   component: RouteComponent,
-  beforeLoad: () => {
-    if (!auth.isAuthenticated()) {
+  beforeLoad: async () => {
+    const isValid = await auth.validateSession()
+    if (!isValid) {
       throw redirect({ to: "/login" })
     }
   },
