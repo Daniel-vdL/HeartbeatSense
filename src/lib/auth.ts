@@ -47,11 +47,69 @@ export const auth = {
   getDisplayName(): string {
     const user = this.getUser<{
       firstName?: string
+      firstname?: string
+      FirstName?: string
+      lastName?: string
+      name?: string
+      username?: string
+      email?: string
     }>()
     return (
       user?.firstName ||
-      "User"
+      user?.firstname ||
+      user?.FirstName ||
+      user?.name ||
+      user?.username ||
+      user?.email ||
+      ""
     )
+  },
+  async validateSession(): Promise<boolean> {
+    const token = this.getToken()
+    if (!token) {
+      this.clear()
+      return false
+    }
+
+    try {
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        this.clear()
+        return false
+      }
+
+      const data = (await response.json()) as {
+        firstName?: string
+        firstname?: string
+        FirstName?: string
+        lastName?: string
+        email?: string
+        token?: string
+      }
+
+      this.setUser({
+        firstName:
+          data.firstName ?? data.firstname ?? data.FirstName ?? undefined,
+        lastName: data.lastName,
+        email: data.email,
+      })
+
+      if (data.token) {
+        this.setToken(data.token)
+      }
+
+      return true
+    } catch {
+      this.clear()
+      return false
+    }
   },
   clear() {
     if (typeof window === "undefined") return
