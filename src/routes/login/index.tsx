@@ -60,6 +60,7 @@ export default function Page() {
       auth.setAuthenticated(true)
       auth.setToken(normalized.token)
       auth.setUser(normalized)
+      auth.markValidatedNow()
       await router.navigate({ to: "/home" })
     },
   })
