@@ -38,7 +38,7 @@ function RouteComponent() {
         <button
           type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors"
+          className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors"
         >
           <LogOut size={18} />
           Uitloggen
@@ -52,51 +52,52 @@ function RouteComponent() {
       <div className="flex-1 px-4 sm:px-8 pb-16">
         <div className="max-w-6xl mx-auto pt-8">
           <div className="flex justify-center">
-            <h2 className="brand-title text-white text-3xl sm:text-4xl font-semibold text-center">
+            <h2 className="brand-title text-white text-3xl sm:text-4xl font-semibold">
               Heartbeat Sense
             </h2>
           </div>
 
-          {/* Navigation Buttons */}
+          {/* Navigation Buttons (same as Home) */}
           <div className="flex justify-center mt-8">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-2xl">
               <Link to="/home" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm shadow-lg`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
-                    <Heart size={28} />
+                    <Heart size={32} />
                   </div>
                   <span className="text-sm font-medium text-center">Start meten</span>
                 </div>
               </Link>
 
-              <Link to="/activiteit" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm shadow-lg`}>
-                  <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
-                    <Activity size={28} />
-                  </div>
-                  <span className="text-sm font-medium text-center">Activiteit</span>
+            <Link to="/activiteit" className="block"> {/* AANGEPAST: Was to="/" */}
+              <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 shadow-lg`}>
+                <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
+                  <Activity size={32} />
                 </div>
-              </Link>
+                <span className="text-sm font-medium text-center">Activiteit</span>
+              </div>
+            </Link>
 
               <Link to="/dossier" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-xl scale-105 hover:bg-white/30`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
-                    <FileText size={28} />
+                    <FileText size={32} />
                   </div>
-                  <span className="text-sm font-bold text-center">Mijn Dossier</span>
+                  <span className="text-sm font-medium text-center">Mijn Dossier</span>
                 </div>
               </Link>
 
               <Link to="/overzicht" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm shadow-lg`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
-                    <TrendingUp size={28} />
+                    <TrendingUp size={32} />
                   </div>
-                  <span className="text-sm font-semibold text-center">Overzicht</span>
+                  <span className="text-sm font-medium text-center">Overzicht</span>
                 </div>
-              </Link> 
+              </Link>
             </div>
           </div>
+        </div>
           <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold"> Mijn Dossier</div>
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -185,7 +186,6 @@ function RouteComponent() {
             </Card>
           </div>
         </div>
-      </div>
     </main>
   )
 }
