@@ -30,7 +30,7 @@ function RouteComponent() {
         <button
           type="button"
           onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors"
+          className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors"
         >
           <LogOut size={18} />
           Uitloggen
@@ -54,7 +54,7 @@ function RouteComponent() {
           <div className="flex justify-center mt-8">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-2xl">
               <Link to="/home" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-lg hover:bg-white/30`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white text-purple-600 shadow-lg hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Heart size={32} />
                   </div>
@@ -63,7 +63,7 @@ function RouteComponent() {
               </Link>
 
               <Link to="/activiteit" className="block"> 
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Activity size={32} />
                   </div>
@@ -72,7 +72,7 @@ function RouteComponent() {
               </Link>
 
               <Link to="/dossier" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <FileText size={32} />
                   </div>
@@ -81,7 +81,7 @@ function RouteComponent() {
               </Link>
 
               <Link to="/overzicht" className="block">
-                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30`}>
+                <div className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl transition-all bg-white/20 text-white hover:bg-white/30 shadow-lg`}>
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <TrendingUp size={32} />
                   </div>
