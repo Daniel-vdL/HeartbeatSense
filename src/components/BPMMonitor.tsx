@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { auth } from '@/lib/auth';
 
 interface BPMMonitorProps {
   onMeasurementComplete?: (bpm: number, duration: number) => void;
@@ -16,6 +18,7 @@ export function BPMMonitor({
   const [heartRate, setHeartRate] = useState(0);
   const [timer, setTimer] = useState(0);
   const [measurements, setMeasurements] = useState<number[]>([]);
+  const [since, setSince] = useState<string | null>(null);
 
   const sizes = {
     small: { container: 'w-32 h-32', text: 'text-3xl', bpmText: 'text-sm', icon: 'w-4 h-4', iconContainer: 'w-8 h-8' },
@@ -24,6 +27,53 @@ export function BPMMonitor({
   };
 
   const currentSize = sizes[size];
+
+  useQuery({
+    queryKey: ['measurements', 'latest', since],
+    queryFn: async () => {
+      const token = auth.getToken();
+      if (!token) {
+        throw new Error('No auth token');
+      }
+
+      const params = new URLSearchParams({ limit: '100' });
+      if (since) {
+        params.set('since', since);
+      }
+
+      const response = await fetch(`/api/measurements/latest?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch measurements');
+      }
+
+      return (await response.json()) as {
+        items: Array<{
+          value: string | number;
+          deviceId?: string;
+          createdAt: string;
+        }>;
+      };
+    },
+    refetchInterval: 15_000,
+    staleTime: 10_000,
+    onSuccess: (data) => {
+      const latestDate = data.items
+        .map((m) => m.createdAt)
+        .filter(Boolean)
+        .sort()
+        .pop();
+      if (latestDate) {
+        setSince(latestDate);
+      }
+    },
+  });
 
   useEffect(() => {
     if (isMonitoring) {

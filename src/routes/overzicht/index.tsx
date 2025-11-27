@@ -1,42 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
-import { User, Heart, Calendar, Activity, FileText, TrendingUp, LogOut } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { useQuery } from '@tanstack/react-query'
+import { Activity, FileText, Heart, LogOut, TrendingUp, User } from 'lucide-react'
+import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { auth } from "@/lib/auth"
-
-// --- MOCK DATA SERVICE (Zodat het werkt zonder jouw externe bestand) ---
-// Als je jouw echte service weer wilt gebruiken, verwijder dit blok en uncomment je import.
-const dataService = {
-  getWeekData: () => [
-    { averageHeartRate: 72, steps: 4500 },
-    { averageHeartRate: 75, steps: 8000 },
-    { averageHeartRate: 68, steps: 3000 },
-    { averageHeartRate: 74, steps: 6000 },
-    { averageHeartRate: 70, steps: 7500 },
-    { averageHeartRate: 76, steps: 9000 },
-    { averageHeartRate: 72, steps: 5000 },
-  ],
-  getStatistics: () => ({
-    weekAverageHeartRate: 72,
-    weekAverageSteps: 6142,
-    weekTotalActiveMinutes: 340,
-  }),
-  getTodayActivity: () => {
-    // Genereer wat nep data voor vandaag
-    const measurements = [];
-    const now = new Date();
-    for (let i = 8; i < 18; i++) { // Van 8:00 tot 18:00
-       measurements.push({ timestamp: new Date().setHours(i, 0, 0, 0), bpm: 60 + Math.floor(Math.random() * 40) })
-    }
-    return { measurements };
-  }
-};
-
-interface DailyActivity {
-    averageHeartRate?: number;
-    steps: number;
-}
 
 // --- ROUTE SETUP ---
 export const Route = createFileRoute('/overzicht/')({
@@ -59,94 +27,149 @@ function RouteComponent() {
   }
 
   // --- JOUW LOGICA ---
-  const [weekData, setWeekData] = useState<DailyActivity[]>([]);
-  const [stats, setStats] = useState({
-    weekAverageHeartRate: 0,
-    weekAverageSteps: 0,
-    weekTotalActiveMinutes: 0,
-  });
-  const [dailyHeartRateData, setDailyHeartRateData] = useState<any[]>([]);
+  const { data: measurements, isLoading, error } = useQuery({
+    queryKey: ['measurements', 'overview'],
+    queryFn: async () => {
+      const token = auth.getToken()
+      if (!token) throw new Error("No auth token")
+      const params = new URLSearchParams({ limit: "500" })
+      const response = await fetch(`/api/measurements/latest?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+      })
+      if (!response.ok) {
+        throw new Error(`Failed to fetch measurements (${response.status})`)
+      }
+      return (await response.json()) as {
+        items: Array<{
+          value: string | number
+          deviceId?: string
+          createdAt: string
+        }>
+      }
+    },
+    refetchInterval: 15_000,
+    staleTime: 10_000,
+  })
+
+  const parsed = useMemo(() => {
+    const items = measurements?.items ?? []
+    const normalized = items
+      .map((m) => ({
+        ...m,
+        bpm: Number(m.value),
+        date: new Date(m.createdAt),
+      }))
+      .filter((m) => Number.isFinite(m.bpm))
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+
+    const todayPoints = new Map<string, { sum: number; count: number }>()
+    const dataByDay = new Map<string, Array<{ time: string; bpm: number }>>()
+
+    normalized.forEach((m) => {
+      const dayKey = m.date.toISOString().split('T')[0]
+      const timeLabel = `${m.date.getHours()}:${m.date.getMinutes().toString().padStart(2, '0')}`
+      const arr = dataByDay.get(dayKey) ?? []
+      arr.push({ time: timeLabel, bpm: m.bpm })
+      dataByDay.set(dayKey, arr)
+    })
+
+    const hourlyByDay: Record<string, Array<{ time: string; bpm: number }>> = {}
+    Array.from(dataByDay.entries()).forEach(([day, points]) => {
+      hourlyByDay[day] = points
+        .map((p) => ({ ...p, bpm: Math.round(p.bpm) }))
+        .sort((a, b) => {
+          const [ah, am] = a.time.split(':').map(Number)
+          const [bh, bm] = b.time.split(':').map(Number)
+          return ah === bh ? am - bm : ah - bh
+        })
+    })
+
+    const todayData = hourlyByDay[todayStart.toISOString().split('T')[0]] ?? []
+
+    const weekLabels = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
+    const weekPoints = new Map<string, { sum: number; count: number }>()
+    normalized.forEach((m) => {
+      const label = weekLabels[m.date.getDay()]
+      const bucket = weekPoints.get(label) ?? { sum: 0, count: 0 }
+      bucket.sum += m.bpm
+      bucket.count += 1
+      weekPoints.set(label, bucket)
+    })
+
+    const chartWeekData = weekLabels.map((label) => {
+      const bucket = weekPoints.get(label)
+      return {
+        day: label,
+        hartslag: bucket ? Math.round(bucket.sum / bucket.count) : 0,
+        stappen: bucket ? bucket.count : 0,
+      }
+    })
+
+    const latest = normalized.at(-1) ?? null
+    const avgBpm =
+      normalized.length > 0
+        ? Math.round(
+            normalized.reduce((sum, m, _, arr) => sum + m.bpm / arr.length, 0),
+          )
+        : null
+
+    const totalSamples = normalized.length
+    const days = Array.from(dataByDay.keys()).sort((a, b) => b.localeCompare(a))
+
+    return {
+      dailyHeartRateData: todayData,
+      chartWeekData,
+      latestBpm: latest ? latest.bpm : null,
+      latestDate: latest ? latest.date : null,
+      avgBpm,
+      totalSamples,
+      dataByDay: hourlyByDay,
+      days,
+    }
+  }, [measurements])
+
+  const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
   useEffect(() => {
-    const loadData = () => {
-      const data = dataService.getWeekData();
-      const statistics = dataService.getStatistics();
-      
-      setWeekData(data);
-      setStats({
-        weekAverageHeartRate: statistics.weekAverageHeartRate,
-        weekAverageSteps: statistics.weekAverageSteps,
-        weekTotalActiveMinutes: statistics.weekTotalActiveMinutes,
-      });
+    if (parsed.days.length > 0) {
+      setSelectedDay((prev) => prev ?? parsed.days[0])
+    }
+  }, [parsed.days])
 
-      // Genereer data voor vandaag per uur
-      const today = dataService.getTodayActivity();
-      const hourlyData: any[] = [];
-      
-      if (today.measurements.length > 0) {
-        // Groepeer metingen per uur
-        const measurementsByHour: { [key: string]: number[] } = {};
-        
-        today.measurements.forEach(m => {
-          const hour = new Date(m.timestamp).getHours();
-          const hourKey = `${hour}:00`;
-          if (!measurementsByHour[hourKey]) {
-            measurementsByHour[hourKey] = [];
-          }
-          measurementsByHour[hourKey].push(m.bpm);
-        });
+  const dayLabel = selectedDay
+    ? new Date(selectedDay).toLocaleDateString()
+    : 'Geen datum'
+  const selectedHourlyData =
+    (selectedDay && parsed.dataByDay[selectedDay]) || []
+  const selectedAvgBpm = useMemo(() => {
+    if (!selectedHourlyData.length) return null
+    const total = selectedHourlyData.reduce((sum, m) => sum + m.bpm, 0)
+    return Math.round(total / selectedHourlyData.length)
+  }, [selectedHourlyData])
+  const selectedSteps = useMemo(() => {
+    return selectedHourlyData.length
+  }, [selectedHourlyData])
+  const selectedActiveMinutes = useMemo(() => {
+    return Math.round(selectedHourlyData.length / 2)
+  }, [selectedHourlyData])
 
-        // Maak data array
-        Object.keys(measurementsByHour).sort().forEach(hour => {
-          const bpms = measurementsByHour[hour];
-          const avgBpm = Math.round(bpms.reduce((a, b) => a + b, 0) / bpms.length);
-          hourlyData.push({ time: hour, bpm: avgBpm });
-        });
-      } else {
-        // Gebruik placeholder data
-        const hours = ['00:00', '06:00', '09:00', '12:00', '15:00', '18:00', '21:00'];
-        hours.forEach(hour => {
-          hourlyData.push({ time: hour, bpm: 68 });
-        });
-      }
-
-      setDailyHeartRateData(hourlyData);
-    };
-
-    loadData();
-
-    // Refresh elke 10 seconden
-    const interval = setInterval(loadData, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const chartWeekData = weekData.map((day, index) => {
-    const dayNames = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za'];
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - index));
-    
-    return {
-      day: dayNames[date.getDay()],
-      hartslag: day.averageHeartRate || 0,
-      stappen: day.steps,
-    };
-  });
-
-  const lastWeekAvgHeartRate = weekData.length > 1 
-    ? Math.round(weekData.slice(0, -1).reduce((sum, d) => sum + (d.averageHeartRate || 0), 0) / (weekData.length - 1))
-    : stats.weekAverageHeartRate;
-
-  const heartRateChange = lastWeekAvgHeartRate > 0
-    ? (((stats.weekAverageHeartRate - lastWeekAvgHeartRate) / lastWeekAvgHeartRate) * 100).toFixed(0)
-    : 0;
-
-  const lastWeekSteps = weekData.length > 1
-    ? Math.round(weekData.slice(0, -1).reduce((sum, d) => sum + d.steps, 0) / (weekData.length - 1))
-    : stats.weekAverageSteps;
-
-  const stepsChange = lastWeekSteps > 0
-    ? (((stats.weekAverageSteps - lastWeekSteps) / lastWeekSteps) * 100).toFixed(0)
-    : 0;
+  const chartWeekData = parsed.chartWeekData
+  const dailyHeartRateData = parsed.dailyHeartRateData
+  const stats = {
+    weekAverageHeartRate: parsed.avgBpm ?? 0,
+    weekAverageSteps: Math.round((parsed.totalSamples ?? 0) / 7),
+    weekTotalActiveMinutes: Math.round((parsed.totalSamples ?? 0) / 2),
+  }
+  const heartRateChange = 0
+  const stepsChange = 0
 
   // --- RENDER ---
   return (
@@ -222,30 +245,51 @@ function RouteComponent() {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center">
-              <div className="text-5xl text-white mb-2">{stats.weekAverageHeartRate}</div>
-              <div className="text-white/80">Gem. Hartslag (BPM)</div>
-              <div className={`text-sm mt-2 ${Number(heartRateChange) >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                {Number(heartRateChange) >= 0 ? '↑' : '↓'} {Math.abs(Number(heartRateChange))}% deze week
+              <div className="text-5xl text-white mb-2">
+                {isLoading ? '...' : selectedAvgBpm ?? '—'}
               </div>
+              <div className="text-white/80">Gem. Hartslag (geselecteerde dag)</div>
+              <div className="text-sm text-white/60 mt-2">{dayLabel}</div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center">
-              <div className="text-5xl text-white mb-2">{stats.weekAverageSteps.toLocaleString()}</div>
-              <div className="text-white/80">Gem. Stappen/dag</div>
-              <div className={`text-sm mt-2 ${Number(stepsChange) >= 0 ? 'text-green-300' : 'text-red-300'}`}>
-                {Number(stepsChange) >= 0 ? '↑' : '↓'} {Math.abs(Number(stepsChange))}% deze week
+              <div className="text-5xl text-white mb-2">
+                {isLoading ? '...' : selectedSteps.toLocaleString()}
               </div>
+              <div className="text-white/80">Stappen (geselecteerde dag)</div>
+              <div className="text-sm text-white/60 mt-2">{dayLabel}</div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center">
-              <div className="text-5xl text-white mb-2">{stats.weekTotalActiveMinutes}</div>
-              <div className="text-white/80">Actieve minuten</div>
-              <div className="text-sm text-green-300 mt-2">Deze week</div>
+              <div className="text-5xl text-white mb-2">
+                {isLoading ? '...' : selectedActiveMinutes}
+              </div>
+              <div className="text-white/80">Actieve minuten (geselecteerde dag)</div>
+              <div className="text-sm text-white/60 mt-2">{dayLabel}</div>
             </div>
           </div>
 
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 mb-6">
-            <h3 className="text-2xl text-white mb-4">Hartslag Vandaag</h3>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <h3 className="text-2xl text-white">Hartslag per dag</h3>
+              <div className="flex items-center gap-2">
+                <label className="text-white/80 text-sm" htmlFor="day-select">
+                  Kies dag:
+                </label>
+                <select
+                  id="day-select"
+                  className="bg-white/10 text-white rounded-lg px-3 py-2 border border-white/20 focus:outline-none focus:ring-2 focus:ring-white/40"
+                  value={selectedDay ?? ''}
+                  onChange={(e) => setSelectedDay(e.target.value)}
+                >
+                  {parsed.days.map((day) => (
+                    <option key={day} value={day} className="text-black">
+                      {new Date(day).toLocaleDateString()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={dailyHeartRateData}>
+              <AreaChart data={selectedHourlyData}>
                 <defs>
                   <linearGradient id="colorBpm" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#AD3535" stopOpacity={0.8}/>
@@ -254,7 +298,7 @@ function RouteComponent() {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                 <XAxis dataKey="time" stroke="rgba(255,255,255,0.6)" />
-                <YAxis stroke="rgba(255,255,255,0.6)" domain={[50, 160]} />
+                <YAxis stroke="rgba(255,255,255,0.6)" domain={[0, 200]} tickCount={9} />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: 'rgba(107, 91, 159, 0.9)', 
