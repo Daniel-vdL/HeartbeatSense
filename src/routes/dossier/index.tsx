@@ -98,7 +98,22 @@ function RouteComponent() {
             </div>
           </div>
         </div>
-          <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold"> Mijn Dossier</div>
+          <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold max-w-6xl mx-auto">Mijn Dossier</div>
+          <div className="mt-4 flex justify-end max-w-6xl mx-auto">
+            <button
+              type="button"
+              onClick={() => {
+                // TODO: open modal or navigate to edit - currently a placeholder
+                // Keer een eenvoudige feedback terug zodat knop functioneel is
+                // eslint-disable-next-line no-console
+                console.log('Gegevens bewerken geklikt')
+              }}
+              className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg bg-red-300/60 hover:bg-red-300/80 text-white font-medium transition-colors"
+            >
+              <FileText size={16} />
+              Gegevens bewerken
+            </button>
+          </div>
 
           <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
            

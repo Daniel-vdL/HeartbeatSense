@@ -16,6 +16,7 @@ import { Route as LoginIndexRouteImport } from './routes/login/index'
 import { Route as HomeIndexRouteImport } from './routes/home/index'
 import { Route as DossierIndexRouteImport } from './routes/dossier/index'
 import { Route as ActiviteitIndexRouteImport } from './routes/activiteit/index'
+import { Route as DossierEditIndexRouteImport } from './routes/dossier/edit/index'
 import { Route as DemoTanstackQueryIndexRouteImport } from './routes/demo/tanstack-query/index'
 import { Route as DemoTableIndexRouteImport } from './routes/demo/table/index'
 import { Route as DemoFormSimpleIndexRouteImport } from './routes/demo/form/simple/index'
@@ -56,6 +57,11 @@ const ActiviteitIndexRoute = ActiviteitIndexRouteImport.update({
   path: '/activiteit/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DossierEditIndexRoute = DossierEditIndexRouteImport.update({
+  id: '/dossier/edit/',
+  path: '/dossier/edit/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DemoTanstackQueryIndexRoute = DemoTanstackQueryIndexRouteImport.update({
   id: '/demo/tanstack-query/',
   path: '/demo/tanstack-query/',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupIndexRoute
   '/demo/table': typeof DemoTableIndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryIndexRoute
+  '/dossier/edit': typeof DossierEditIndexRoute
   '/demo/form/address': typeof DemoFormAddressIndexRoute
   '/demo/form/simple': typeof DemoFormSimpleIndexRoute
 }
@@ -100,6 +107,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupIndexRoute
   '/demo/table': typeof DemoTableIndexRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryIndexRoute
+  '/dossier/edit': typeof DossierEditIndexRoute
   '/demo/form/address': typeof DemoFormAddressIndexRoute
   '/demo/form/simple': typeof DemoFormSimpleIndexRoute
 }
@@ -114,6 +122,7 @@ export interface FileRoutesById {
   '/signup/': typeof SignupIndexRoute
   '/demo/table/': typeof DemoTableIndexRoute
   '/demo/tanstack-query/': typeof DemoTanstackQueryIndexRoute
+  '/dossier/edit/': typeof DossierEditIndexRoute
   '/demo/form/address/': typeof DemoFormAddressIndexRoute
   '/demo/form/simple/': typeof DemoFormSimpleIndexRoute
 }
@@ -129,6 +138,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/demo/table'
     | '/demo/tanstack-query'
+    | '/dossier/edit'
     | '/demo/form/address'
     | '/demo/form/simple'
   fileRoutesByTo: FileRoutesByTo
@@ -142,6 +152,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/demo/table'
     | '/demo/tanstack-query'
+    | '/dossier/edit'
     | '/demo/form/address'
     | '/demo/form/simple'
   id:
@@ -155,6 +166,7 @@ export interface FileRouteTypes {
     | '/signup/'
     | '/demo/table/'
     | '/demo/tanstack-query/'
+    | '/dossier/edit/'
     | '/demo/form/address/'
     | '/demo/form/simple/'
   fileRoutesById: FileRoutesById
@@ -169,6 +181,7 @@ export interface RootRouteChildren {
   SignupIndexRoute: typeof SignupIndexRoute
   DemoTableIndexRoute: typeof DemoTableIndexRoute
   DemoTanstackQueryIndexRoute: typeof DemoTanstackQueryIndexRoute
+  DossierEditIndexRoute: typeof DossierEditIndexRoute
   DemoFormAddressIndexRoute: typeof DemoFormAddressIndexRoute
   DemoFormSimpleIndexRoute: typeof DemoFormSimpleIndexRoute
 }
@@ -224,6 +237,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ActiviteitIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dossier/edit/': {
+      id: '/dossier/edit/'
+      path: '/dossier/edit'
+      fullPath: '/dossier/edit'
+      preLoaderRoute: typeof DossierEditIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/demo/tanstack-query/': {
       id: '/demo/tanstack-query/'
       path: '/demo/tanstack-query'
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupIndexRoute: SignupIndexRoute,
   DemoTableIndexRoute: DemoTableIndexRoute,
   DemoTanstackQueryIndexRoute: DemoTanstackQueryIndexRoute,
+  DossierEditIndexRoute: DossierEditIndexRoute,
   DemoFormAddressIndexRoute: DemoFormAddressIndexRoute,
   DemoFormSimpleIndexRoute: DemoFormSimpleIndexRoute,
 }
