@@ -39,9 +39,8 @@ export default function SignupPage() {
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
-        dateOfBirth: values.age, // TODO: align form field name to dateOfBirth
+        dateOfBirth: values.dateOfBirth,
         gender: values.gender,
-        dateofBirth: values.dateofBirth,
         email: values.email,
         number: sanitizedPhone ? sanitizedPhone : "",
         password: values.password,
@@ -81,7 +80,7 @@ export default function SignupPage() {
         email: data.email ?? "",
         number: (data as Record<string, unknown>).number ?? data.number ?? "",
         gender: (data as Record<string, unknown>).gender ?? data.gender,
-        age: (data as Record<string, unknown>).age ?? data.age ?? values.age ?? null,
+        dateOfBirth: (data as Record<string, unknown>).dateOfBirth ?? data.dateOfBirth ?? values.dateOfBirth ?? "",
         height: (data as Record<string, unknown>).height ?? data.height,
         weight: (data as Record<string, unknown>).weight ?? data.weight,
         bloodType: (data as Record<string, unknown>).bloodType ?? data.bloodType,
