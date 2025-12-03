@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
-import { ArrowLeft, Save, User, Heart } from 'lucide-react'
+import { ArrowLeft, Save, User } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { auth } from '@/lib/auth'
@@ -55,10 +55,6 @@ function RouteComponent() {
     height: "",
     weight: "",
     bloodType: "",
-    restingRate: "",
-    maxRate: "",
-    bloodPressure: "",
-    lastCheck: "",
   }))
   const bg = 'linear-gradient(135deg, #6b5b9f 0%, #8b7db8 50%, #9b8dc8 100%)'
 
@@ -78,17 +74,13 @@ function RouteComponent() {
       height: stored.personal.height,
       weight: stored.personal.weight,
       bloodType: stored.personal.bloodType,
-      restingRate: stored.heart.restingRate,
-      maxRate: stored.heart.maxRate,
-      bloodPressure: stored.heart.bloodPressure,
-      lastCheck: stored.heart.lastCheck,
     })
   }, [])
 
   useEffect(() => {
-    auth.refreshUserFromApi().then((profile) => {
-      if (profile) {
-        setProfile(profile)
+   auth.refreshUserFromApi().then((profile) => {
+     if (profile) {
+       setProfile(profile)
         setFormValues((prev) => ({
           ...prev,
           firstName: profile.firstName ?? prev.firstName,
@@ -100,8 +92,8 @@ function RouteComponent() {
           bloodType: profile.bloodType ?? prev.bloodType,
         }))
       }
-    })
-  }, [])
+   })
+ }, [])
 
   const updateField = (field: keyof typeof formValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }))
@@ -245,12 +237,7 @@ function RouteComponent() {
           weight: data.weight !== undefined && data.weight !== null ? `${data.weight}` : formValues.weight,
           bloodType: data.bloodType ?? formValues.bloodType,
         },
-        heart: {
-          restingRate: formValues.restingRate,
-          maxRate: formValues.maxRate,
-          bloodPressure: formValues.bloodPressure,
-          lastCheck: formValues.lastCheck,
-        },
+        heart: dossierData.heart,
         measurements: dossierData.measurements,
       }
       saveDossierData(updated)
@@ -272,16 +259,12 @@ function RouteComponent() {
       height: "",
       weight: "",
       bloodType: "",
-      restingRate: "",
-      maxRate: "",
-      bloodPressure: "",
-      lastCheck: "",
     })
-    const reset: DossierData = {
-      ...defaultDossierData,
-    }
-    saveDossierData(reset)
-    setDossierData(reset)
+   const reset: DossierData = {
+     ...defaultDossierData,
+   }
+   saveDossierData(reset)
+   setDossierData(reset)
   }
 
   return (
@@ -309,39 +292,22 @@ function RouteComponent() {
               </div>
               <CardTitle className="text-white">Persoonlijke Info</CardTitle>
             </div>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InputField label="Voornaam" value={formValues.firstName} onChange={(val) => updateField("firstName", val)} />
-            <InputField label="Achternaam" value={formValues.lastName} onChange={(val) => updateField("lastName", val)} />
-            <InputField label="Telefoonnummer" value={formValues.number} onChange={(val) => updateField("number", val)} />
-            <InputField
-              label="Geboortedatum"
-              value={formValues.dateOfBirth}
-              onChange={(val) => updateField("dateOfBirth", val)}
-              inputType="date"
-            />
-            <InputField label="Lengte (cm)" value={formValues.height} onChange={(val) => updateField("height", val)} />
-            <InputField label="Gewicht (kg)" value={formValues.weight} onChange={(val) => updateField("weight", val)} />
-            <InputField label="Bloedgroep" value={formValues.bloodType} onChange={(val) => updateField("bloodType", val)} />
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white/10 border-white/20 backdrop-blur-md">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="bg-[#AD3535] rounded-lg p-2 shadow-md">
-                <Heart className="w-6 h-6 text-white" />
-              </div>
-              <CardTitle className="text-white">Hartgezondheid (lokaal opgeslagen)</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <InputField label="Rusthartslag" value={formValues.restingRate} onChange={(val) => updateField("restingRate", val)} />
-            <InputField label="Max hartslag" value={formValues.maxRate} onChange={(val) => updateField("maxRate", val)} />
-            <InputField label="Bloeddruk" value={formValues.bloodPressure} onChange={(val) => updateField("bloodPressure", val)} />
-            <InputField label="Laatste controle" value={formValues.lastCheck} onChange={(val) => updateField("lastCheck", val)} />
-          </CardContent>
-        </Card>
+      </CardHeader>
+      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <InputField label="Voornaam" value={formValues.firstName} onChange={(val) => updateField("firstName", val)} />
+        <InputField label="Achternaam" value={formValues.lastName} onChange={(val) => updateField("lastName", val)} />
+        <InputField label="Telefoonnummer" value={formValues.number} onChange={(val) => updateField("number", val)} />
+        <InputField
+          label="Geboortedatum"
+          value={formValues.dateOfBirth}
+          onChange={(val) => updateField("dateOfBirth", val)}
+          inputType="date"
+        />
+        <InputField label="Lengte (cm)" value={formValues.height} onChange={(val) => updateField("height", val)} />
+        <InputField label="Gewicht (kg)" value={formValues.weight} onChange={(val) => updateField("weight", val)} />
+        <InputField label="Bloedgroep" value={formValues.bloodType} onChange={(val) => updateField("bloodType", val)} />
+      </CardContent>
+    </Card>
 
         {apiError ? <p className="text-sm text-red-200">{apiError}</p> : null}
 

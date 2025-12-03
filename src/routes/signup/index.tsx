@@ -80,7 +80,7 @@ export default function SignupPage() {
         email: data.email ?? "",
         number: (data as Record<string, unknown>).number ?? data.number ?? "",
         gender: (data as Record<string, unknown>).gender ?? data.gender,
-        dateOfBirth: (data as Record<string, unknown>).dateOfBirth ?? data.dateOfBirth ?? values.dateOfBirth ?? "",
+        dateOfBirth: (data as Record<string, unknown>).dateOfBirth ?? data.dateOfBirth ?? "",
         height: (data as Record<string, unknown>).height ?? data.height,
         weight: (data as Record<string, unknown>).weight ?? data.weight,
         bloodType: (data as Record<string, unknown>).bloodType ?? data.bloodType,
