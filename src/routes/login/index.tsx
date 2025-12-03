@@ -8,6 +8,17 @@ type AuthResponse = {
   firstName?: string
   lastName?: string
   email?: string
+  number?: string
+  gender?: string
+  dateOfBirth?: string
+  height?: number | string
+  weight?: number | string
+  bloodType?: string
+  latestMeasurement?: {
+    value?: string
+    deviceId?: string
+    createdAt?: string
+  } | null
 }
 
 export const Route = createFileRoute('/login/')({
@@ -56,6 +67,13 @@ export default function Page() {
           "",
         lastName: data.lastName ?? "",
         email: data.email ?? "",
+        number: (data as Record<string, unknown>).number ?? data.number ?? "",
+        gender: (data as Record<string, unknown>).gender ?? data.gender,
+        dateOfBirth: (data as Record<string, unknown>).dateOfBirth ?? data.dateOfBirth ?? "",
+        height: (data as Record<string, unknown>).height ?? data.height,
+        weight: (data as Record<string, unknown>).weight ?? data.weight,
+        bloodType: (data as Record<string, unknown>).bloodType ?? data.bloodType,
+        latestMeasurement: data.latestMeasurement ?? null,
       }
       auth.setAuthenticated(true)
       auth.setToken(normalized.token)

@@ -2,6 +2,28 @@ const STORAGE_KEY = "hb_authenticated"
 const STORAGE_USER_KEY = "hb_user"
 const STORAGE_TOKEN_KEY = "hb_token"
 const VALIDATION_MAX_AGE_MS = 5 * 60 * 1000 // 5 minutes
+export type LatestMeasurement = {
+  value?: string
+  deviceId?: string
+  createdAt?: string
+} | null
+
+export type StoredUser = {
+  firstName?: string
+  firstname?: string
+  FirstName?: string
+  lastName?: string
+  name?: string
+  username?: string
+  email?: string
+  number?: string
+  gender?: string
+  dateOfBirth?: string
+  height?: number | string
+  weight?: number | string
+  bloodType?: string
+  latestMeasurement?: LatestMeasurement
+}
 
 let lastValidationTime = 0
 let inFlightValidation: Promise<boolean> | null = null
@@ -38,7 +60,7 @@ export const auth = {
       // ignore storage errors
     }
   },
-  getUser<T = Record<string, unknown>>(): T | null {
+  getUser<T = StoredUser>(): T | null {
     if (typeof window === "undefined") return null
     const raw = window.localStorage.getItem(STORAGE_USER_KEY)
     if (!raw) return null
@@ -49,15 +71,7 @@ export const auth = {
     }
   },
   getDisplayName(): string {
-    const user = this.getUser<{
-      firstName?: string
-      firstname?: string
-      FirstName?: string
-      lastName?: string
-      name?: string
-      username?: string
-      email?: string
-    }>()
+    const user = this.getUser()
     return (
       user?.firstName ||
       user?.firstname ||
@@ -67,6 +81,54 @@ export const auth = {
       user?.email ||
       ""
     )
+  },
+  getAge(): number | null {
+    const user = this.getUser()
+    if (!user?.dateOfBirth) return null
+    const date = new Date(user.dateOfBirth)
+    if (Number.isNaN(date.getTime())) return null
+    const diff = Date.now() - date.getTime()
+    const ageDate = new Date(diff)
+    return Math.abs(ageDate.getUTCFullYear() - 1970)
+  },
+  async refreshUserFromApi(): Promise<StoredUser | null> {
+    const token = this.getToken()
+    if (!token) return null
+    try {
+      const response = await fetch("/api/auth/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      })
+
+      if (!response.ok) {
+        return null
+      }
+
+      const data = (await response.json()) as StoredUser & { token?: string }
+      this.setUser({
+        firstName: data.firstName ?? data.firstname ?? data.FirstName ?? undefined,
+        lastName: data.lastName,
+        email: data.email,
+        number: data.number,
+        gender: data.gender,
+        dateOfBirth: data.dateOfBirth,
+        height: data.height,
+        weight: data.weight,
+        bloodType: data.bloodType,
+        latestMeasurement: data.latestMeasurement ?? null,
+      })
+
+      if (data.token) {
+        this.setToken(data.token)
+      }
+
+      return this.getUser()
+    } catch {
+      return null
+    }
   },
   async validateSession(): Promise<boolean> {
     const token = this.getToken()
@@ -105,20 +167,20 @@ export const auth = {
         return false
       }
 
-      const data = (await response.json()) as {
-        firstName?: string
-        firstname?: string
-        FirstName?: string
-        lastName?: string
-        email?: string
-        token?: string
-      }
+      const data = (await response.json()) as StoredUser & { token?: string }
 
       this.setUser({
         firstName:
           data.firstName ?? data.firstname ?? data.FirstName ?? undefined,
         lastName: data.lastName,
         email: data.email,
+        number: data.number,
+        gender: data.gender,
+        dateOfBirth: data.dateOfBirth,
+        height: data.height,
+        weight: data.weight,
+        bloodType: data.bloodType,
+        latestMeasurement: data.latestMeasurement ?? null,
       })
 
       if (data.token) {
