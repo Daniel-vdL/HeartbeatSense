@@ -27,8 +27,7 @@ import { Link } from '@tanstack/react-router'
 export type SignupValues = {
   firstName: string
   lastName: string
-  age: string
-  dateofBirth: string
+  dateOfBirth: string
   gender: string
   email: string
   phone: string
@@ -51,13 +50,12 @@ export function SignupForm({
   const [values, setValues] = useState<SignupValues>({
     firstName: "",
     lastName: "",
-    age: "",
+    dateOfBirth: "",
     gender: "male",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
-    dateofBirth: "",
   })
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -113,15 +111,15 @@ export function SignupForm({
                 onChange={handleChange("lastName")}
                 disabled={isLoading}
               />
-              <FieldLabel htmlFor="dateofBirth">Date of Birth</FieldLabel>
+              <FieldLabel htmlFor="dateOfBirth">Date of Birth</FieldLabel>
               <Input
-                id="dateofBirth"
+                id="dateOfBirth"
                 type="date"
                 min="1900-01-01"
                 max="2025-12-31"
                 required
-                value={values.dateofBirth}
-                onChange={handleChange("dateofBirth")}
+                value={values.dateOfBirth}
+                onChange={handleChange("dateOfBirth")}
                 disabled={isLoading}
               />
 
