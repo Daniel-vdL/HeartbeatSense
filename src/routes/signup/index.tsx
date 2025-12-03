@@ -28,8 +28,8 @@ export default function SignupPage() {
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
-        age: Number(values.age) || values.age,
         gender: values.gender,
+        dateofBirth: values.dateofBirth,
         email: values.email,
         number: sanitizedPhone ? Number(sanitizedPhone) : 0,
         password: values.password,
