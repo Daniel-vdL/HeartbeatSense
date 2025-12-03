@@ -17,6 +17,7 @@ type MeasurementDisplay = {
   time: string
   label: string
   value: string
+  numericValue?: number
 }
 
 export const Route = createFileRoute('/dossier/')({
@@ -68,6 +69,13 @@ function RouteComponent() {
   const [dossierData, setDossierData] = useState<DossierData>(() => loadDossierData())
   const [user, setUser] = useState<StoredUser | null>(() => auth.getUser())
   const [measurementItems, setMeasurementItems] = useState<MeasurementDisplay[]>([])
+  const [lastMeasurementDate, setLastMeasurementDate] = useState<string>("")
+  const [heartStats, setHeartStats] = useState({
+    restingRate: placeholder,
+    maxRate: placeholder,
+    bloodPressure: "N/A",
+    lastCheck: placeholder,
+  })
 
   useEffect(() => {
     setDossierData(loadDossierData())
@@ -90,7 +98,7 @@ function RouteComponent() {
       const token = auth.getToken()
       if (!token) return
       try {
-        const response = await fetch("/api/measurements/latest?limit=5", {
+        const response = await fetch("/api/measurements/latest?limit=100", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
@@ -104,17 +112,66 @@ function RouteComponent() {
         }
         if (!response.ok) return
         const data = (await response.json()) as { items?: ApiMeasurement[] }
-        const fromApi = (data.items ?? [])
+        const enriched = (data.items ?? [])
           .filter((item) => item.value)
-          .map(apiMeasurementToDisplay)
-        if (fromApi.length) {
-          setMeasurementItems(fromApi.slice(0, 5))
+          .map((item) => {
+            const base = apiMeasurementToDisplay(item)
+            const numericValue = Number(item.value)
+            return {
+              ...base,
+              numericValue: Number.isFinite(numericValue) ? numericValue : undefined,
+            }
+          })
+
+        let itemsToShow: MeasurementDisplay[] = []
+
+        if (enriched.length) {
+          itemsToShow = enriched.slice(0, 5)
+
+          const numericValues = enriched
+            .map((m) => m.numericValue)
+            .filter((v): v is number => v !== undefined && !Number.isNaN(v))
+
+          if (numericValues.length) {
+            const min = Math.min(...numericValues)
+            const max = Math.max(...numericValues)
+            const averageMin = Math.round(min)
+            const averageMax = Math.round(max)
+            setHeartStats({
+              restingRate: `${averageMin} BPM`,
+              maxRate: `${averageMax} BPM`,
+              bloodPressure: "N/A",
+              lastCheck: enriched[0]?.date ? `${enriched[0].date} ${enriched[0].time}` : placeholder,
+            })
+          } else {
+            setHeartStats({
+              restingRate: placeholder,
+              maxRate: placeholder,
+              bloodPressure: "N/A",
+              lastCheck: enriched[0]?.date ? `${enriched[0].date} ${enriched[0].time}` : placeholder,
+            })
+          }
+
+          if (enriched[0]?.date) {
+            setLastMeasurementDate(`${enriched[0].date} ${enriched[0].time}`)
+          }
+          setMeasurementItems(itemsToShow)
           return
         }
+
         // fallback: latestMeasurement from profile if available
         const latest = auth.getUser()?.latestMeasurement
         if (latest?.value) {
-          setMeasurementItems([apiMeasurementToDisplay(latest)])
+          const latestDisplay = apiMeasurementToDisplay(latest)
+          const numericValue = Number(latest.value)
+          setMeasurementItems([{ ...latestDisplay, numericValue: Number.isFinite(numericValue) ? numericValue : undefined }])
+          setHeartStats({
+            restingRate: Number.isFinite(numericValue) ? `${numericValue} BPM` : placeholder,
+            maxRate: Number.isFinite(numericValue) ? `${numericValue} BPM` : placeholder,
+            bloodPressure: "N/A",
+            lastCheck: latestDisplay.date ? `${latestDisplay.date} ${latestDisplay.time}` : placeholder,
+          })
+          setLastMeasurementDate(latestDisplay.date ? `${latestDisplay.date} ${latestDisplay.time}` : "")
         }
       } catch {
         // ignore fetch errors, keep existing state
@@ -160,12 +217,12 @@ function RouteComponent() {
 
   const heartInfo = useMemo(() => {
     return {
-      restingRate: dossierData.heart.restingRate || placeholder,
-      maxRate: dossierData.heart.maxRate || placeholder,
-      bloodPressure: dossierData.heart.bloodPressure || placeholder,
-      lastCheck: dossierData.heart.lastCheck || placeholder,
+      restingRate: heartStats.restingRate || dossierData.heart.restingRate || placeholder,
+      maxRate: heartStats.maxRate || dossierData.heart.maxRate || placeholder,
+      bloodPressure: heartStats.bloodPressure || dossierData.heart.bloodPressure || placeholder,
+      lastCheck: heartStats.lastCheck || lastMeasurementDate || dossierData.heart.lastCheck || placeholder,
     }
-  }, [dossierData.heart])
+  }, [dossierData.heart, heartStats, lastMeasurementDate])
 
   const recentMeasurements: MeasurementDisplay[] = measurementItems.length
     ? measurementItems
