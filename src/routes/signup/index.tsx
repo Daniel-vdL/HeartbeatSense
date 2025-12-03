@@ -8,6 +8,17 @@ type AuthResponse = {
   firstName?: string
   lastName?: string
   email?: string
+  number?: string
+  gender?: string
+  dateOfBirth?: string
+  height?: number | string
+  weight?: number | string
+  bloodType?: string
+  latestMeasurement?: {
+    value?: string
+    deviceId?: string
+    createdAt?: string
+  } | null
 }
 
 export const Route = createFileRoute('/signup/')({  
@@ -28,10 +39,10 @@ export default function SignupPage() {
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
-        age: Number(values.age) || values.age,
+        dateOfBirth: values.age, // TODO: align form field name to dateOfBirth
         gender: values.gender,
         email: values.email,
-        number: sanitizedPhone ? Number(sanitizedPhone) : 0,
+        number: sanitizedPhone ? sanitizedPhone : "",
         password: values.password,
       }
 
@@ -67,6 +78,13 @@ export default function SignupPage() {
           "",
         lastName: data.lastName ?? "",
         email: data.email ?? "",
+        number: (data as Record<string, unknown>).number ?? data.number ?? "",
+        gender: (data as Record<string, unknown>).gender ?? data.gender,
+        age: (data as Record<string, unknown>).age ?? data.age ?? values.age ?? null,
+        height: (data as Record<string, unknown>).height ?? data.height,
+        weight: (data as Record<string, unknown>).weight ?? data.weight,
+        bloodType: (data as Record<string, unknown>).bloodType ?? data.bloodType,
+        latestMeasurement: data.latestMeasurement ?? null,
       }
       auth.setAuthenticated(true)
       auth.setToken(normalized.token)

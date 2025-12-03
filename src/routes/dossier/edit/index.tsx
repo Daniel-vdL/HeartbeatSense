@@ -1,9 +1,396 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState, type FormEvent } from 'react'
+import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
+import { ArrowLeft, Save, User, Heart } from 'lucide-react'
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { auth } from '@/lib/auth'
+import {
+  defaultDossierData,
+  loadDossierData,
+  saveDossierData,
+  type DossierData,
+} from '@/lib/dossierData'
+import type { StoredUser } from '@/lib/auth'
+
+type UserResponse = {
+  token?: string
+  firstName?: string
+  lastname?: string
+  lastName?: string
+  email?: string
+  number?: string
+  gender?: string
+  dateOfBirth?: string
+  height?: number | string
+  weight?: number | string
+  bloodType?: string
+  latestMeasurement?: {
+    value?: string
+    deviceId?: string
+    createdAt?: string
+  } | null
+}
 
 export const Route = createFileRoute('/dossier/edit/')({
   component: RouteComponent,
+  beforeLoad: async () => {
+    const isValid = await auth.validateSession()
+    if (!isValid) {
+      throw redirect({ to: "/login" })
+    }
+  },
 })
 
 function RouteComponent() {
-  return <div>Hello "/dossier/edit/"!</div>
+  const router = useRouter()
+  const [profile, setProfile] = useState<StoredUser | null>(() => auth.getUser())
+  const [dossierData, setDossierData] = useState<DossierData>(() => loadDossierData())
+  const [saving, setSaving] = useState(false)
+  const [apiError, setApiError] = useState<string | null>(null)
+  const [formValues, setFormValues] = useState(() => ({
+    firstName: "",
+    lastName: "",
+    number: "",
+    dateOfBirth: "",
+    height: "",
+    weight: "",
+    bloodType: "",
+    restingRate: "",
+    maxRate: "",
+    bloodPressure: "",
+    lastCheck: "",
+  }))
+  const bg = 'linear-gradient(135deg, #6b5b9f 0%, #8b7db8 50%, #9b8dc8 100%)'
+
+  const normalizeDateInput = (value?: string) => {
+    if (!value) return ""
+    return value.includes("T") ? value.split("T")[0] : value
+  }
+
+  useEffect(() => {
+    const stored = loadDossierData()
+    setDossierData(stored)
+    setFormValues({
+      firstName: profile?.firstName ?? "",
+      lastName: profile?.lastName ?? "",
+      number: profile?.number ?? "",
+      dateOfBirth: normalizeDateInput(profile?.dateOfBirth),
+      height: stored.personal.height,
+      weight: stored.personal.weight,
+      bloodType: stored.personal.bloodType,
+      restingRate: stored.heart.restingRate,
+      maxRate: stored.heart.maxRate,
+      bloodPressure: stored.heart.bloodPressure,
+      lastCheck: stored.heart.lastCheck,
+    })
+  }, [])
+
+  useEffect(() => {
+    auth.refreshUserFromApi().then((profile) => {
+      if (profile) {
+        setProfile(profile)
+        setFormValues((prev) => ({
+          ...prev,
+          firstName: profile.firstName ?? prev.firstName,
+          lastName: profile.lastName ?? prev.lastName,
+          number: profile.number ?? prev.number,
+          dateOfBirth: normalizeDateInput(profile.dateOfBirth) || prev.dateOfBirth,
+          height: profile.height !== undefined && profile.height !== null ? `${profile.height}` : prev.height,
+          weight: profile.weight !== undefined && profile.weight !== null ? `${profile.weight}` : prev.weight,
+          bloodType: profile.bloodType ?? prev.bloodType,
+        }))
+      }
+    })
+  }, [])
+
+  const updateField = (field: keyof typeof formValues, value: string) => {
+    setFormValues((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const toNumericOrString = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) return undefined
+    const numeric = Number(trimmed.replace(',', '.'))
+    if (Number.isFinite(numeric)) return numeric
+    return null
+  }
+
+  const validateNumberString = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) return undefined
+    return /^\d+$/.test(trimmed) ? trimmed : null
+  }
+
+  const validateDate = (value: string) => {
+    const trimmed = value.trim()
+    if (!trimmed) return undefined
+    const parsed = new Date(trimmed)
+    if (Number.isNaN(parsed.getTime())) return null
+    // keep input as provided; backend expects ISO string
+    return trimmed
+  }
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setSaving(true)
+    setApiError(null)
+    const token = auth.getToken()
+    if (!token) {
+      auth.clear()
+      await router.navigate({ to: "/login" })
+      return
+    }
+
+    const body: Record<string, unknown> = {}
+    const effectiveFirstName = (formValues.firstName || profile?.firstName || "").trim()
+    const effectiveLastName = (formValues.lastName || profile?.lastName || "").trim()
+    const effectiveGender = profile?.gender ?? undefined
+    const effectiveDob = validateDate(formValues.dateOfBirth || normalizeDateInput(profile?.dateOfBirth) || "")
+
+    const heightValue = toNumericOrString(
+      formValues.height || (profile?.height !== undefined && profile?.height !== null ? String(profile.height) : "")
+    )
+    const weightValue = toNumericOrString(
+      formValues.weight || (profile?.weight !== undefined && profile?.weight !== null ? String(profile.weight) : "")
+    )
+
+    if (heightValue === null || weightValue === null) {
+      setApiError("Gebruik alleen cijfers voor lengte/gewicht (eventueel met punt of komma).")
+      setSaving(false)
+      return
+    }
+
+    const numberValue = validateNumberString(formValues.number || profile?.number || "")
+    if (!effectiveFirstName || !effectiveLastName) {
+      setApiError("Voornaam en achternaam zijn verplicht.")
+      setSaving(false)
+      return
+    }
+    if (numberValue === null) {
+      setApiError("Telefoonnummer mag alleen cijfers bevatten.")
+      setSaving(false)
+      return
+    }
+    if (numberValue === undefined) {
+      setApiError("Telefoonnummer is verplicht.")
+      setSaving(false)
+      return
+    }
+    if (effectiveDob === null) {
+      setApiError("Geboortedatum is ongeldig. Gebruik formaat YYYY-MM-DD.")
+      setSaving(false)
+      return
+    }
+
+    // Altijd verplichte velden meesturen
+    body.firstName = effectiveFirstName
+    body.lastName = effectiveLastName
+    body.number = numberValue
+    if (effectiveDob !== undefined) body.dateOfBirth = effectiveDob
+
+    if (effectiveGender) body.gender = effectiveGender
+    if (heightValue !== undefined) body.height = heightValue
+    if (weightValue !== undefined) body.weight = weightValue
+    if (formValues.bloodType || profile?.bloodType) body.bloodType = formValues.bloodType || profile?.bloodType
+
+    if (Object.keys(body).length === 0) {
+      setApiError("Geen velden om op te slaan. Vul iets in en probeer opnieuw.")
+      setSaving(false)
+      return
+    }
+
+    try {
+      const response = await fetch("/api/users/me", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: JSON.stringify(body),
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        auth.clear()
+        await router.navigate({ to: "/login" })
+        return
+      }
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => "")
+        setApiError(text || `${response.status} ${response.statusText}`)
+        return
+      }
+
+      const data = (await response.json()) as UserResponse
+      auth.setUser({
+        firstName: data.firstName,
+        lastName: data.lastName ?? data.lastname,
+        email: data.email,
+        number: data.number,
+        gender: data.gender,
+        dateOfBirth: data.dateOfBirth,
+        height: data.height,
+        weight: data.weight,
+        bloodType: data.bloodType,
+        latestMeasurement: data.latestMeasurement ?? null,
+      })
+      if (data.token) {
+        auth.setToken(data.token)
+      }
+      setProfile(auth.getUser())
+      const updated: DossierData = {
+        personal: {
+          height: data.height !== undefined && data.height !== null ? `${data.height}` : formValues.height,
+          weight: data.weight !== undefined && data.weight !== null ? `${data.weight}` : formValues.weight,
+          bloodType: data.bloodType ?? formValues.bloodType,
+        },
+        heart: {
+          restingRate: formValues.restingRate,
+          maxRate: formValues.maxRate,
+          bloodPressure: formValues.bloodPressure,
+          lastCheck: formValues.lastCheck,
+        },
+        measurements: dossierData.measurements,
+      }
+      saveDossierData(updated)
+      setDossierData(updated)
+      await router.navigate({ to: "/dossier" })
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : "Onbekende fout")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleReset = () => {
+    setFormValues({
+      firstName: "",
+      lastName: "",
+      number: "",
+      dateOfBirth: "",
+      height: "",
+      weight: "",
+      bloodType: "",
+      restingRate: "",
+      maxRate: "",
+      bloodPressure: "",
+      lastCheck: "",
+    })
+    const reset: DossierData = {
+      ...defaultDossierData,
+    }
+    saveDossierData(reset)
+    setDossierData(reset)
+  }
+
+  return (
+    <main className="min-h-screen flex flex-col" style={{ background: bg }}>
+      <header className="p-6 flex items-center justify-between">
+        <div>
+          <div className="text-white text-sm opacity-80">Mijn Dossier</div>
+          <h1 className="brand-title text-white text-3xl font-bold">Gegevens bewerken</h1>
+        </div>
+        <Link
+          to="/dossier"
+          className="cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg bg-white/15 hover:bg-white/25 text-white font-medium transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Terug
+        </Link>
+      </header>
+
+      <form onSubmit={handleSubmit} className="flex-1 px-4 sm:px-8 pb-16 max-w-5xl mx-auto w-full space-y-6">
+        <Card className="bg-white/10 border-white/20 backdrop-blur-md">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="bg-[#AD3535] rounded-lg p-2 shadow-md">
+                <User className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle className="text-white">Persoonlijke Info</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputField label="Voornaam" value={formValues.firstName} onChange={(val) => updateField("firstName", val)} />
+            <InputField label="Achternaam" value={formValues.lastName} onChange={(val) => updateField("lastName", val)} />
+            <InputField label="Telefoonnummer" value={formValues.number} onChange={(val) => updateField("number", val)} />
+            <InputField
+              label="Geboortedatum"
+              value={formValues.dateOfBirth}
+              onChange={(val) => updateField("dateOfBirth", val)}
+              inputType="date"
+            />
+            <InputField label="Lengte (cm)" value={formValues.height} onChange={(val) => updateField("height", val)} />
+            <InputField label="Gewicht (kg)" value={formValues.weight} onChange={(val) => updateField("weight", val)} />
+            <InputField label="Bloedgroep" value={formValues.bloodType} onChange={(val) => updateField("bloodType", val)} />
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white/10 border-white/20 backdrop-blur-md">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="bg-[#AD3535] rounded-lg p-2 shadow-md">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle className="text-white">Hartgezondheid (lokaal opgeslagen)</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputField label="Rusthartslag" value={formValues.restingRate} onChange={(val) => updateField("restingRate", val)} />
+            <InputField label="Max hartslag" value={formValues.maxRate} onChange={(val) => updateField("maxRate", val)} />
+            <InputField label="Bloeddruk" value={formValues.bloodPressure} onChange={(val) => updateField("bloodPressure", val)} />
+            <InputField label="Laatste controle" value={formValues.lastCheck} onChange={(val) => updateField("lastCheck", val)} />
+          </CardContent>
+        </Card>
+
+        {apiError ? <p className="text-sm text-red-200">{apiError}</p> : null}
+
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-end">
+          <button
+            type="button"
+            onClick={handleReset}
+            className="w-full sm:w-auto cursor-pointer px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white font-medium transition-colors border border-white/20"
+          >
+            Reset naar standaard
+          </button>
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-red-300/80 hover:bg-red-300 text-white font-semibold transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            <Save className="w-4 h-4" />
+            {saving ? "Opslaan..." : "Opslaan"}
+          </button>
+        </div>
+      </form>
+    </main>
+  )
+}
+
+function InputField({
+  label,
+  value,
+  onChange,
+  disabled = false,
+  inputType = "text",
+}: {
+  label: string
+  value: string
+  onChange?: (value: string) => void
+  disabled?: boolean
+  inputType?: string
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-white text-sm">
+      <span className="text-white/80">{label}</span>
+      <input
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
+        disabled={disabled}
+        type={inputType}
+        className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/40 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+        placeholder={`Voer ${label.toLowerCase()} in`}
+      />
+    </label>
+  )
 }
