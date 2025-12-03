@@ -41,6 +41,7 @@ export default function SignupPage() {
         lastName: values.lastName,
         dateOfBirth: values.age, // TODO: align form field name to dateOfBirth
         gender: values.gender,
+        dateofBirth: values.dateofBirth,
         email: values.email,
         number: sanitizedPhone ? sanitizedPhone : "",
         password: values.password,

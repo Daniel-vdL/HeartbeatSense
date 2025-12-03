@@ -28,6 +28,7 @@ export type SignupValues = {
   firstName: string
   lastName: string
   age: string
+  dateofBirth: string
   gender: string
   email: string
   phone: string
@@ -56,6 +57,7 @@ export function SignupForm({
     phone: "",
     password: "",
     confirmPassword: "",
+    dateofBirth: "",
   })
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -111,15 +113,15 @@ export function SignupForm({
                 onChange={handleChange("lastName")}
                 disabled={isLoading}
               />
-              <FieldLabel htmlFor="age">Age</FieldLabel>
+              <FieldLabel htmlFor="dateofBirth">Date of Birth</FieldLabel>
               <Input
-                id="age"
-                type="number"
-                placeholder="20"
-                min={0} max={100}
+                id="dateofBirth"
+                type="date"
+                min="1900-01-01"
+                max="2025-12-31"
                 required
-                value={values.age}
-                onChange={handleChange("age")}
+                value={values.dateofBirth}
+                onChange={handleChange("dateofBirth")}
                 disabled={isLoading}
               />
 
@@ -149,10 +151,7 @@ export function SignupForm({
                 onChange={handleChange("email")}
                 disabled={isLoading}
               />
-              <FieldDescription>
-                We&apos;ll use this to contact you. We will not share your email
-                with anyone else.
-              </FieldDescription>
+
             </Field>
             <Field>
               <FieldLabel htmlFor="phone">Phone number</FieldLabel>
@@ -171,6 +170,7 @@ export function SignupForm({
               <Input
                 id="password"
                 type="password"
+                placeholder="Password"
                 required
                 value={values.password}
                 onChange={handleChange("password")}
