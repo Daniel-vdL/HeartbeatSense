@@ -6,6 +6,9 @@ import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, T
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { auth } from "@/lib/auth"
 
+const DAY_MS = 24 * 60 * 60 * 1000
+const weekLabels = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
+
 // --- ROUTE SETUP ---
 export const Route = createFileRoute('/overzicht/')({
   component: RouteComponent,
@@ -21,6 +24,14 @@ function RouteComponent() {
   const router = useRouter()
   const bg = 'linear-gradient(135deg, #6b5b9f 0%, #8b7db8 50%, #9b8dc8 100%)'
   const displayName = auth.getDisplayName()
+  const [selectedWeekStart, setSelectedWeekStart] = useState(() => {
+    const now = new Date()
+    const day = now.getDay() === 0 ? 7 : now.getDay() // monday=1..7
+    const monday = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+    monday.setUTCDate(monday.getUTCDate() - (day - 1))
+    monday.setUTCHours(0, 0, 0, 0)
+    return monday
+  })
   const handleLogout = async () => {
     auth.clear()
     await router.navigate({ to: "/login" })
@@ -66,14 +77,15 @@ function RouteComponent() {
       .filter((m) => Number.isFinite(m.bpm))
       .sort((a, b) => a.date.getTime() - b.date.getTime())
 
-    const now = new Date()
-    const todayStart = new Date(now)
-    todayStart.setHours(0, 0, 0, 0)
+    const weekStartMs = selectedWeekStart.getTime()
+    const weekEndMs = weekStartMs + 7 * DAY_MS
+    const inWeek = normalized.filter(
+      (m) => m.date.getTime() >= weekStartMs && m.date.getTime() < weekEndMs,
+    )
 
-    const todayPoints = new Map<string, { sum: number; count: number }>()
     const dataByDay = new Map<string, Array<{ time: string; bpm: number }>>()
 
-    normalized.forEach((m) => {
+    inWeek.forEach((m) => {
       const dayKey = m.date.toISOString().split('T')[0]
       const timeLabel = `${m.date.getHours()}:${m.date.getMinutes().toString().padStart(2, '0')}`
       const arr = dataByDay.get(dayKey) ?? []
@@ -92,12 +104,10 @@ function RouteComponent() {
         })
     })
 
-    const todayData = hourlyByDay[todayStart.toISOString().split('T')[0]] ?? []
-
-    const weekLabels = ['Zo', 'Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za']
     const weekPoints = new Map<string, { sum: number; count: number }>()
-    normalized.forEach((m) => {
-      const label = weekLabels[m.date.getDay()]
+    inWeek.forEach((m) => {
+      const jsDay = m.date.getDay() === 0 ? 6 : m.date.getDay() - 1 // Monday=0
+      const label = weekLabels[jsDay]
       const bucket = weekPoints.get(label) ?? { sum: 0, count: 0 }
       bucket.sum += m.bpm
       bucket.count += 1
@@ -113,19 +123,17 @@ function RouteComponent() {
       }
     })
 
-    const latest = normalized.at(-1) ?? null
+    const latest = inWeek.at(-1) ?? null
     const avgBpm =
-      normalized.length > 0
-        ? Math.round(
-            normalized.reduce((sum, m, _, arr) => sum + m.bpm / arr.length, 0),
-          )
+      inWeek.length > 0
+        ? Math.round(inWeek.reduce((sum, m, _, arr) => sum + m.bpm / arr.length, 0))
         : null
 
-    const totalSamples = normalized.length
+    const totalSamples = inWeek.length
     const days = Array.from(dataByDay.keys()).sort((a, b) => b.localeCompare(a))
 
     return {
-      dailyHeartRateData: todayData,
+      dailyHeartRateData: [],
       chartWeekData,
       latestBpm: latest ? latest.bpm : null,
       latestDate: latest ? latest.date : null,
@@ -134,15 +142,17 @@ function RouteComponent() {
       dataByDay: hourlyByDay,
       days,
     }
-  }, [measurements])
+  }, [measurements, selectedWeekStart])
 
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
   useEffect(() => {
     if (parsed.days.length > 0) {
-      setSelectedDay((prev) => prev ?? parsed.days[0])
+      setSelectedDay((prev) => parsed.days.includes(prev ?? "") ? prev : parsed.days[0])
+    } else {
+      setSelectedDay(null)
     }
-  }, [parsed.days])
+  }, [parsed.days, selectedWeekStart])
 
   const dayLabel = selectedDay
     ? new Date(selectedDay).toLocaleDateString()
@@ -316,7 +326,32 @@ function RouteComponent() {
           </div>
 
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6">
-            <h3 className="text-2xl text-white mb-4">Weekoverzicht</h3>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
+              <div>
+                <h3 className="text-2xl text-white">Weekoverzicht</h3>
+                <div className="text-white/70 text-sm">
+                  {selectedWeekStart.toLocaleDateString('nl-NL', { day: '2-digit', month: 'short' })} –{" "}
+                  {new Date(selectedWeekStart.getTime() + 6 * DAY_MS).toLocaleDateString('nl-NL', {
+                    day: '2-digit',
+                    month: 'short',
+                  })}
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-white/80 text-sm">
+                <button
+                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20"
+                  onClick={() => setSelectedWeekStart((prev) => new Date(prev.getTime() - 7 * DAY_MS))}
+                >
+                  ◀ Vorige week
+                </button>
+                <button
+                  className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20"
+                  onClick={() => setSelectedWeekStart((prev) => new Date(prev.getTime() + 7 * DAY_MS))}
+                >
+                  Volgende week ▶
+                </button>
+              </div>
+            </div>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartWeekData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />

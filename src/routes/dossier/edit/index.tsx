@@ -52,6 +52,7 @@ function RouteComponent() {
     lastName: "",
     number: "",
     dateOfBirth: "",
+    gender: "",
     height: "",
     weight: "",
     bloodType: "",
@@ -71,6 +72,7 @@ function RouteComponent() {
       lastName: profile?.lastName ?? "",
       number: profile?.number ?? "",
       dateOfBirth: normalizeDateInput(profile?.dateOfBirth),
+      gender: profile?.gender ?? "",
       height: stored.personal.height,
       weight: stored.personal.weight,
       bloodType: stored.personal.bloodType,
@@ -87,6 +89,7 @@ function RouteComponent() {
           lastName: profile.lastName ?? prev.lastName,
           number: profile.number ?? prev.number,
           dateOfBirth: normalizeDateInput(profile.dateOfBirth) || prev.dateOfBirth,
+          gender: profile.gender ?? prev.gender,
           height: profile.height !== undefined && profile.height !== null ? `${profile.height}` : prev.height,
           weight: profile.weight !== undefined && profile.weight !== null ? `${profile.weight}` : prev.weight,
           bloodType: profile.bloodType ?? prev.bloodType,
@@ -136,7 +139,7 @@ function RouteComponent() {
     const body: Record<string, unknown> = {}
     const effectiveFirstName = (formValues.firstName || profile?.firstName || "").trim()
     const effectiveLastName = (formValues.lastName || profile?.lastName || "").trim()
-    const effectiveGender = profile?.gender ?? undefined
+    const effectiveGender = (formValues.gender || profile?.gender || "").trim() || undefined
     const effectiveDob = validateDate(formValues.dateOfBirth || normalizeDateInput(profile?.dateOfBirth) || "")
 
     const heightValue = toNumericOrString(
@@ -256,6 +259,7 @@ function RouteComponent() {
       lastName: "",
       number: "",
       dateOfBirth: "",
+      gender: "",
       height: "",
       weight: "",
       bloodType: "",
@@ -297,17 +301,43 @@ function RouteComponent() {
         <InputField label="Voornaam" value={formValues.firstName} onChange={(val) => updateField("firstName", val)} />
         <InputField label="Achternaam" value={formValues.lastName} onChange={(val) => updateField("lastName", val)} />
         <InputField label="Telefoonnummer" value={formValues.number} onChange={(val) => updateField("number", val)} />
-        <InputField
-          label="Geboortedatum"
-          value={formValues.dateOfBirth}
-          onChange={(val) => updateField("dateOfBirth", val)}
-          inputType="date"
-        />
-        <InputField label="Lengte (cm)" value={formValues.height} onChange={(val) => updateField("height", val)} />
-        <InputField label="Gewicht (kg)" value={formValues.weight} onChange={(val) => updateField("weight", val)} />
-        <InputField label="Bloedgroep" value={formValues.bloodType} onChange={(val) => updateField("bloodType", val)} />
-      </CardContent>
-    </Card>
+            <InputField
+              label="Geboortedatum"
+              value={formValues.dateOfBirth}
+              onChange={(val) => updateField("dateOfBirth", val)}
+              inputType="date"
+            />
+            <SelectField
+              label="Geslacht"
+              value={formValues.gender}
+              onChange={(val) => updateField("gender", val)}
+              options={[
+                { value: "", label: "Kies..." },
+                { value: "male", label: "Man" },
+                { value: "female", label: "Vrouw" },
+                { value: "other", label: "Anders" },
+              ]}
+            />
+            <InputField label="Lengte (cm)" value={formValues.height} onChange={(val) => updateField("height", val)} />
+            <InputField label="Gewicht (kg)" value={formValues.weight} onChange={(val) => updateField("weight", val)} />
+            <SelectField
+              label="Bloedgroep"
+              value={formValues.bloodType}
+              onChange={(val) => updateField("bloodType", val)}
+              options={[
+                { value: "", label: "Kies..." },
+                { value: "AB+", label: "AB+" },
+                { value: "AB-", label: "AB-" },
+                { value: "A+", label: "A+" },
+                { value: "A-", label: "A-" },
+                { value: "B+", label: "B+" },
+                { value: "B-", label: "B-" },
+                { value: "O+", label: "O+" },
+                { value: "O-", label: "O-" },
+              ]}
+            />
+          </CardContent>
+        </Card>
 
         {apiError ? <p className="text-sm text-red-200">{apiError}</p> : null}
 
@@ -357,6 +387,44 @@ function InputField({
         className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/50 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/40 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
         placeholder={`Voer ${label.toLowerCase()} in`}
       />
+    </label>
+  )
+}
+
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+  disabled = false,
+}: {
+  label: string
+  value: string
+  onChange?: (value: string) => void
+  options: { value: string; label: string }[]
+  disabled?: boolean
+}) {
+  return (
+    <label className="flex flex-col gap-1 text-white text-sm">
+      <span className="text-white/80">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
+        disabled={disabled}
+        className="w-full rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-white placeholder:text-white/60 focus:border-white/40 focus:outline-none focus:ring-1 focus:ring-white/40 transition-colors disabled:opacity-70 disabled:cursor-not-allowed appearance-none"
+        style={{
+          WebkitAppearance: 'none',
+          MozAppearance: 'none',
+          backgroundImage:
+            'linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08))',
+        }}
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value} className="text-black">
+            {opt.label}
+          </option>
+        ))}
+      </select>
     </label>
   )
 }
