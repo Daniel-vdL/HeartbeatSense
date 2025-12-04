@@ -1,30 +1,29 @@
-import type React from "react"
-import { useState } from "react"
-import { Link } from "@tanstack/react-router"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
+import type React from 'react'
+import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 
 export type LoginValues = {
   email: string
   password: string
 }
 
-type LoginFormProps = Omit<React.ComponentProps<"div">, "onSubmit"> & {
+type LoginFormProps = Omit<React.ComponentProps<'div'>, 'onSubmit'> & {
   onSubmit: (values: LoginValues) => void
   isLoading?: boolean
   error?: string
@@ -38,8 +37,8 @@ export function LoginForm({
   ...props
 }: LoginFormProps) {
   const [values, setValues] = useState<LoginValues>({
-    email: "",
-    password: "",
+    email: '',
+    password: '',
   })
 
   const handleChange =
@@ -54,7 +53,7 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn('flex flex-col gap-6', className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -73,7 +72,7 @@ export function LoginForm({
                   placeholder="m@example.com"
                   required
                   value={values.email}
-                  onChange={handleChange("email")}
+                  onChange={handleChange('email')}
                   disabled={isLoading}
                 />
               </Field>
@@ -83,16 +82,14 @@ export function LoginForm({
                   <a
                     href="#"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                  >
-                    
-                  </a>
+                  ></a>
                 </div>
                 <Input
                   id="password"
                   type="password"
                   required
                   value={values.password}
-                  onChange={handleChange("password")}
+                  onChange={handleChange('password')}
                   disabled={isLoading}
                 />
               </Field>
@@ -103,7 +100,7 @@ export function LoginForm({
                   </FieldDescription>
                 ) : null}
                 <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? "Logging in..." : "Login"}
+                  {isLoading ? 'Logging in...' : 'Login'}
                 </Button>
                 {/* removed extra outline button to simplify form */}
                 <FieldDescription className="text-center">

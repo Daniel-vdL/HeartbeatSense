@@ -10,7 +10,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
       <Header />
-      <Outlet />    
+      <Outlet />
     </>
   ),
 })

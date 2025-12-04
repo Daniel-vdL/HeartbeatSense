@@ -7,7 +7,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <>    
+    <>
       <aside
         className={`fixed top-0 left-0 h-full w-80 bg-gray-900 text-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
@@ -41,7 +41,7 @@ export default function Header() {
           {/* Demo Links Start */}
 
           <Link
-            to={"/demo/form/simple" as any}
+            to={'/demo/form/simple' as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
@@ -54,7 +54,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to={"/demo/form/address" as any}
+            to={'/demo/form/address' as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
@@ -67,7 +67,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to={"/demo/table" as any}
+            to={'/demo/table' as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{
@@ -80,7 +80,7 @@ export default function Header() {
           </Link>
 
           <Link
-            to={"/demo/tanstack-query" as any}
+            to={'/demo/tanstack-query' as any}
             onClick={() => setIsOpen(false)}
             className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-800 transition-colors mb-2"
             activeProps={{

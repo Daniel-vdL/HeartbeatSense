@@ -1,10 +1,32 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Activity, FileText, Heart, LogOut, TrendingUp, User } from 'lucide-react'
-import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { auth } from "@/lib/auth"
+import {
+  Activity,
+  FileText,
+  Heart,
+  LogOut,
+  TrendingUp,
+  User,
+} from 'lucide-react'
+import {
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { auth } from '@/lib/auth'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const weekLabels = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo']
@@ -15,7 +37,7 @@ export const Route = createFileRoute('/overzicht/')({
   beforeLoad: async () => {
     const isValid = await auth.validateSession()
     if (!isValid) {
-      throw redirect({ to: "/login" })
+      throw redirect({ to: '/login' })
     }
   },
 })
@@ -27,30 +49,39 @@ function RouteComponent() {
   const [selectedWeekStart, setSelectedWeekStart] = useState(() => {
     const now = new Date()
     const day = now.getDay() === 0 ? 7 : now.getDay() // monday=1..7
-    const monday = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()))
+    const monday = new Date(
+      Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()),
+    )
     monday.setUTCDate(monday.getUTCDate() - (day - 1))
     monday.setUTCHours(0, 0, 0, 0)
     return monday
   })
   const handleLogout = async () => {
     auth.clear()
-    await router.navigate({ to: "/login" })
+    await router.navigate({ to: '/login' })
   }
 
   // --- JOUW LOGICA ---
-  const { data: measurements, isLoading, error } = useQuery({
+  const {
+    data: measurements,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['measurements', 'overview'],
     queryFn: async () => {
       const token = auth.getToken()
-      if (!token) throw new Error("No auth token")
-      const params = new URLSearchParams({ limit: "500" })
-      const response = await fetch(`/api/measurements/latest?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+      if (!token) throw new Error('No auth token')
+      const params = new URLSearchParams({ limit: '500' })
+      const response = await fetch(
+        `/api/measurements/latest?${params.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
         },
-        credentials: "include",
-      })
+      )
       if (!response.ok) {
         throw new Error(`Failed to fetch measurements (${response.status})`)
       }
@@ -126,7 +157,9 @@ function RouteComponent() {
     const latest = inWeek.at(-1) ?? null
     const avgBpm =
       inWeek.length > 0
-        ? Math.round(inWeek.reduce((sum, m, _, arr) => sum + m.bpm / arr.length, 0))
+        ? Math.round(
+            inWeek.reduce((sum, m, _, arr) => sum + m.bpm / arr.length, 0),
+          )
         : null
 
     const totalSamples = inWeek.length
@@ -148,7 +181,9 @@ function RouteComponent() {
 
   useEffect(() => {
     if (parsed.days.length > 0) {
-      setSelectedDay((prev) => parsed.days.includes(prev ?? "") ? prev : parsed.days[0])
+      setSelectedDay((prev) =>
+        parsed.days.includes(prev ?? '') ? prev : parsed.days[0],
+      )
     } else {
       setSelectedDay(null)
     }
@@ -157,10 +192,11 @@ function RouteComponent() {
   const dayLabel = selectedDay
     ? new Date(selectedDay).toLocaleDateString()
     : 'Geen datum'
-  const selectedHourlyData =
-    (selectedDay && parsed.dataByDay[selectedDay]) || []
+  const selectedHourlyData = selectedDay
+    ? parsed.dataByDay[selectedDay] ?? []
+    : []
   const selectedAvgBpm = useMemo(() => {
-    if (!selectedHourlyData.length) return null
+    if (selectedHourlyData.length === 0) return null
     const total = selectedHourlyData.reduce((sum, m) => sum + m.bpm, 0)
     return Math.round(total / selectedHourlyData.length)
   }, [selectedHourlyData])
@@ -174,9 +210,9 @@ function RouteComponent() {
   const chartWeekData = parsed.chartWeekData
   const dailyHeartRateData = parsed.dailyHeartRateData
   const stats = {
-    weekAverageHeartRate: parsed.avgBpm ?? 0,
-    weekAverageSteps: Math.round((parsed.totalSamples ?? 0) / 7),
-    weekTotalActiveMinutes: Math.round((parsed.totalSamples ?? 0) / 2),
+    weekAverageHeartRate: parsed.avgBpm || 0,
+    weekAverageSteps: Math.round((parsed.totalSamples || 0) / 7),
+    weekTotalActiveMinutes: Math.round((parsed.totalSamples || 0) / 2),
   }
   const heartRateChange = 0
   const stepsChange = 0
@@ -196,7 +232,9 @@ function RouteComponent() {
       </div>
       <header className="p-6">
         <div className="text-white text-sm opacity-80">Welkom terug,</div>
-        <h1 className="brand-title text-white text-2xl font-bold">{displayName}</h1>
+        <h1 className="brand-title text-white text-2xl font-bold">
+          {displayName}
+        </h1>
       </header>
 
       <div className="flex-1 px-4 sm:px-8 pb-16">
@@ -215,7 +253,9 @@ function RouteComponent() {
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Heart size={32} />
                   </div>
-                  <span className="text-sm font-medium text-center">Start meten</span>
+                  <span className="text-sm font-medium text-center">
+                    Start meten
+                  </span>
                 </div>
               </Link>
 
@@ -224,7 +264,9 @@ function RouteComponent() {
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <Activity size={32} />
                   </div>
-                  <span className="text-sm font-medium text-center">Activiteit</span>
+                  <span className="text-sm font-medium text-center">
+                    Activiteit
+                  </span>
                 </div>
               </Link>
 
@@ -233,7 +275,9 @@ function RouteComponent() {
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <FileText size={32} />
                   </div>
-                  <span className="text-sm font-medium text-center">Mijn Dossier</span>
+                  <span className="text-sm font-medium text-center">
+                    Mijn Dossier
+                  </span>
                 </div>
               </Link>
 
@@ -242,7 +286,9 @@ function RouteComponent() {
                   <div className="bg-red-300/60 p-3 rounded-xl flex items-center justify-center">
                     <TrendingUp size={32} />
                   </div>
-                  <span className="text-sm font-medium text-center">Overzicht</span>
+                  <span className="text-sm font-medium text-center">
+                    Overzicht
+                  </span>
                 </div>
               </Link>
             </div>
@@ -251,17 +297,18 @@ function RouteComponent() {
 
         {/* --- JOUW OVERZICHT SECTIE --- */}
         <div className="mt-8 border-b border-white/20 text-white text-center font-['Consolas'] text-3xl font-bold">
-                     Mijn Overzicht
-      </div>
-        
+          Mijn Overzicht
+        </div>
+
         <div className="w-full max-w-6xl mx-auto mt-8">
-          
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center">
               <div className="text-5xl text-white mb-2">
-                {isLoading ? '...' : selectedAvgBpm ?? '—'}
+                {isLoading ? '...' : (selectedAvgBpm ?? '—')}
               </div>
-              <div className="text-white/80">Gem. Hartslag (geselecteerde dag)</div>
+              <div className="text-white/80">
+                Gem. Hartslag (geselecteerde dag)
+              </div>
               <div className="text-sm text-white/60 mt-2">{dayLabel}</div>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-6 text-center">
@@ -275,7 +322,9 @@ function RouteComponent() {
               <div className="text-5xl text-white mb-2">
                 {isLoading ? '...' : selectedActiveMinutes}
               </div>
-              <div className="text-white/80">Actieve minuten (geselecteerde dag)</div>
+              <div className="text-white/80">
+                Actieve minuten (geselecteerde dag)
+              </div>
               <div className="text-sm text-white/60 mt-2">{dayLabel}</div>
             </div>
           </div>
@@ -305,22 +354,36 @@ function RouteComponent() {
               <AreaChart data={selectedHourlyData}>
                 <defs>
                   <linearGradient id="colorBpm" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#AD3535" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#AD3535" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#AD3535" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#AD3535" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="time" stroke="rgba(255,255,255,0.6)" />
-                <YAxis stroke="rgba(255,255,255,0.6)" domain={[0, 200]} tickCount={9} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(107, 91, 159, 0.9)', 
-                    border: 'none', 
-                    borderRadius: '8px',
-                    color: 'white'
-                  }} 
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
                 />
-                <Area type="monotone" dataKey="bpm" stroke="#AD3535" strokeWidth={3} fillOpacity={1} fill="url(#colorBpm)" />
+                <XAxis dataKey="time" stroke="rgba(255,255,255,0.6)" />
+                <YAxis
+                  stroke="rgba(255,255,255,0.6)"
+                  domain={[0, 200]}
+                  tickCount={9}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(107, 91, 159, 0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: 'white',
+                  }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="bpm"
+                  stroke="#AD3535"
+                  strokeWidth={3}
+                  fillOpacity={1}
+                  fill="url(#colorBpm)"
+                />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -330,8 +393,14 @@ function RouteComponent() {
               <div>
                 <h3 className="text-2xl text-white">Weekoverzicht</h3>
                 <div className="text-white/70 text-sm">
-                  {selectedWeekStart.toLocaleDateString('nl-NL', { day: '2-digit', month: 'short' })} –{" "}
-                  {new Date(selectedWeekStart.getTime() + 6 * DAY_MS).toLocaleDateString('nl-NL', {
+                  {selectedWeekStart.toLocaleDateString('nl-NL', {
+                    day: '2-digit',
+                    month: 'short',
+                  })}{' '}
+                  –{' '}
+                  {new Date(
+                    selectedWeekStart.getTime() + 6 * DAY_MS,
+                  ).toLocaleDateString('nl-NL', {
                     day: '2-digit',
                     month: 'short',
                   })}
@@ -340,13 +409,21 @@ function RouteComponent() {
               <div className="flex items-center gap-2 text-white/80 text-sm">
                 <button
                   className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20"
-                  onClick={() => setSelectedWeekStart((prev) => new Date(prev.getTime() - 7 * DAY_MS))}
+                  onClick={() =>
+                    setSelectedWeekStart(
+                      (prev) => new Date(prev.getTime() - 7 * DAY_MS),
+                    )
+                  }
                 >
                   ◀ Vorige week
                 </button>
                 <button
                   className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20"
-                  onClick={() => setSelectedWeekStart((prev) => new Date(prev.getTime() + 7 * DAY_MS))}
+                  onClick={() =>
+                    setSelectedWeekStart(
+                      (prev) => new Date(prev.getTime() + 7 * DAY_MS),
+                    )
+                  }
                 >
                   Volgende week ▶
                 </button>
@@ -354,20 +431,43 @@ function RouteComponent() {
             </div>
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartWeekData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="rgba(255,255,255,0.1)"
+                />
                 <XAxis dataKey="day" stroke="rgba(255,255,255,0.6)" />
                 <YAxis yAxisId="left" stroke="rgba(255,255,255,0.6)" />
-                <YAxis yAxisId="right" orientation="right" stroke="rgba(255,255,255,0.6)" />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'rgba(107, 91, 159, 0.9)', 
-                    border: 'none', 
-                    borderRadius: '8px',
-                    color: 'white'
-                  }} 
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  stroke="rgba(255,255,255,0.6)"
                 />
-                <Line yAxisId="left" type="monotone" dataKey="hartslag" stroke="#AD3535" strokeWidth={3} name="Hartslag" dot={{ r: 4, fill: '#AD3535' }} />
-                <Line yAxisId="right" type="monotone" dataKey="stappen" stroke="#FFA1A1" strokeWidth={3} name="Stappen" dot={{ r: 4, fill: '#FFA1A1' }} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(107, 91, 159, 0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: 'white',
+                  }}
+                />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="hartslag"
+                  stroke="#AD3535"
+                  strokeWidth={3}
+                  name="Hartslag"
+                  dot={{ r: 4, fill: '#AD3535' }}
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="stappen"
+                  stroke="#FFA1A1"
+                  strokeWidth={3}
+                  name="Stappen"
+                  dot={{ r: 4, fill: '#FFA1A1' }}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>

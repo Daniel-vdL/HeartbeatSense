@@ -1,7 +1,8 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
-import { SignupForm, type SignupValues } from "@/components/signup-form"
-import { auth } from "@/lib/auth"
+import type {SignupValues} from '@/components/signup-form';
+import { SignupForm  } from '@/components/signup-form'
+import { auth } from '@/lib/auth'
 
 type AuthResponse = {
   token: string
@@ -21,11 +22,11 @@ type AuthResponse = {
   } | null
 }
 
-export const Route = createFileRoute('/signup/')({  
+export const Route = createFileRoute('/signup/')({
   component: SignupPage,
   beforeLoad: () => {
     if (auth.isAuthenticated()) {
-      throw redirect({ to: "/home" })
+      throw redirect({ to: '/home' })
     }
   },
 })
@@ -35,34 +36,34 @@ export default function SignupPage() {
 
   const signupMutation = useMutation<AuthResponse, Error, SignupValues>({
     mutationFn: async (values) => {
-      const sanitizedPhone = values.phone.replace(/\D/g, "")
+      const sanitizedPhone = values.phone.replace(/\D/g, '')
       const payload = {
         firstName: values.firstName,
         lastName: values.lastName,
         dateOfBirth: values.dateOfBirth,
         gender: values.gender,
         email: values.email,
-        number: sanitizedPhone ? sanitizedPhone : "",
+        number: sanitizedPhone ? sanitizedPhone : '',
         password: values.password,
       }
 
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(payload),
       })
 
       if (!response.ok) {
         const fallback = `${response.status} ${response.statusText}`.trim()
-        const text = await response.text().catch(() => "")
+        const text = await response.text().catch(() => '')
         try {
           const parsed = text ? (JSON.parse(text) as { message?: string }) : {}
           throw new Error(parsed.message ?? fallback)
         } catch {
-          throw new Error(text || fallback || "Signup failed")
+          throw new Error(text || fallback || 'Signup failed')
         }
       }
 
@@ -75,22 +76,26 @@ export default function SignupPage() {
           data.firstName ??
           (data as Record<string, unknown>).firstname ??
           (data as Record<string, unknown>).FirstName ??
-          "",
-        lastName: data.lastName ?? "",
-        email: data.email ?? "",
-        number: (data as Record<string, unknown>).number ?? data.number ?? "",
+          '',
+        lastName: data.lastName ?? '',
+        email: data.email ?? '',
+        number: (data as Record<string, unknown>).number ?? data.number ?? '',
         gender: (data as Record<string, unknown>).gender ?? data.gender,
-        dateOfBirth: (data as Record<string, unknown>).dateOfBirth ?? data.dateOfBirth ?? "",
+        dateOfBirth:
+          (data as Record<string, unknown>).dateOfBirth ??
+          data.dateOfBirth ??
+          '',
         height: (data as Record<string, unknown>).height ?? data.height,
         weight: (data as Record<string, unknown>).weight ?? data.weight,
-        bloodType: (data as Record<string, unknown>).bloodType ?? data.bloodType,
+        bloodType:
+          (data as Record<string, unknown>).bloodType ?? data.bloodType,
         latestMeasurement: data.latestMeasurement ?? null,
       }
       auth.setAuthenticated(true)
       auth.setToken(normalized.token)
       auth.setUser(normalized)
       auth.markValidatedNow()
-      await router.navigate({ to: "/home" })
+      await router.navigate({ to: '/home' })
     },
   })
 

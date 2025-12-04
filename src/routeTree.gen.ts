@@ -17,10 +17,6 @@ import { Route as HomeIndexRouteImport } from './routes/home/index'
 import { Route as DossierIndexRouteImport } from './routes/dossier/index'
 import { Route as ActiviteitIndexRouteImport } from './routes/activiteit/index'
 import { Route as DossierEditIndexRouteImport } from './routes/dossier/edit/index'
-import { Route as DemoTanstackQueryIndexRouteImport } from './routes/demo/tanstack-query/index'
-import { Route as DemoTableIndexRouteImport } from './routes/demo/table/index'
-import { Route as DemoFormSimpleIndexRouteImport } from './routes/demo/form/simple/index'
-import { Route as DemoFormAddressIndexRouteImport } from './routes/demo/form/address/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -62,26 +58,6 @@ const DossierEditIndexRoute = DossierEditIndexRouteImport.update({
   path: '/dossier/edit/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTanstackQueryIndexRoute = DemoTanstackQueryIndexRouteImport.update({
-  id: '/demo/tanstack-query/',
-  path: '/demo/tanstack-query/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoTableIndexRoute = DemoTableIndexRouteImport.update({
-  id: '/demo/table/',
-  path: '/demo/table/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormSimpleIndexRoute = DemoFormSimpleIndexRouteImport.update({
-  id: '/demo/form/simple/',
-  path: '/demo/form/simple/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormAddressIndexRoute = DemoFormAddressIndexRouteImport.update({
-  id: '/demo/form/address/',
-  path: '/demo/form/address/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,11 +67,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginIndexRoute
   '/overzicht': typeof OverzichtIndexRoute
   '/signup': typeof SignupIndexRoute
-  '/demo/table': typeof DemoTableIndexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryIndexRoute
   '/dossier/edit': typeof DossierEditIndexRoute
-  '/demo/form/address': typeof DemoFormAddressIndexRoute
-  '/demo/form/simple': typeof DemoFormSimpleIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -105,11 +77,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginIndexRoute
   '/overzicht': typeof OverzichtIndexRoute
   '/signup': typeof SignupIndexRoute
-  '/demo/table': typeof DemoTableIndexRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryIndexRoute
   '/dossier/edit': typeof DossierEditIndexRoute
-  '/demo/form/address': typeof DemoFormAddressIndexRoute
-  '/demo/form/simple': typeof DemoFormSimpleIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -120,11 +88,7 @@ export interface FileRoutesById {
   '/login/': typeof LoginIndexRoute
   '/overzicht/': typeof OverzichtIndexRoute
   '/signup/': typeof SignupIndexRoute
-  '/demo/table/': typeof DemoTableIndexRoute
-  '/demo/tanstack-query/': typeof DemoTanstackQueryIndexRoute
   '/dossier/edit/': typeof DossierEditIndexRoute
-  '/demo/form/address/': typeof DemoFormAddressIndexRoute
-  '/demo/form/simple/': typeof DemoFormSimpleIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -136,11 +100,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/overzicht'
     | '/signup'
-    | '/demo/table'
-    | '/demo/tanstack-query'
     | '/dossier/edit'
-    | '/demo/form/address'
-    | '/demo/form/simple'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -150,11 +110,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/overzicht'
     | '/signup'
-    | '/demo/table'
-    | '/demo/tanstack-query'
     | '/dossier/edit'
-    | '/demo/form/address'
-    | '/demo/form/simple'
   id:
     | '__root__'
     | '/'
@@ -164,11 +120,7 @@ export interface FileRouteTypes {
     | '/login/'
     | '/overzicht/'
     | '/signup/'
-    | '/demo/table/'
-    | '/demo/tanstack-query/'
     | '/dossier/edit/'
-    | '/demo/form/address/'
-    | '/demo/form/simple/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -179,11 +131,7 @@ export interface RootRouteChildren {
   LoginIndexRoute: typeof LoginIndexRoute
   OverzichtIndexRoute: typeof OverzichtIndexRoute
   SignupIndexRoute: typeof SignupIndexRoute
-  DemoTableIndexRoute: typeof DemoTableIndexRoute
-  DemoTanstackQueryIndexRoute: typeof DemoTanstackQueryIndexRoute
   DossierEditIndexRoute: typeof DossierEditIndexRoute
-  DemoFormAddressIndexRoute: typeof DemoFormAddressIndexRoute
-  DemoFormSimpleIndexRoute: typeof DemoFormSimpleIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -244,34 +192,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DossierEditIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tanstack-query/': {
-      id: '/demo/tanstack-query/'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/table/': {
-      id: '/demo/table/'
-      path: '/demo/table'
-      fullPath: '/demo/table'
-      preLoaderRoute: typeof DemoTableIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/simple/': {
-      id: '/demo/form/simple/'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/address/': {
-      id: '/demo/form/address/'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
@@ -283,11 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginIndexRoute: LoginIndexRoute,
   OverzichtIndexRoute: OverzichtIndexRoute,
   SignupIndexRoute: SignupIndexRoute,
-  DemoTableIndexRoute: DemoTableIndexRoute,
-  DemoTanstackQueryIndexRoute: DemoTanstackQueryIndexRoute,
   DossierEditIndexRoute: DossierEditIndexRoute,
-  DemoFormAddressIndexRoute: DemoFormAddressIndexRoute,
-  DemoFormSimpleIndexRoute: DemoFormSimpleIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

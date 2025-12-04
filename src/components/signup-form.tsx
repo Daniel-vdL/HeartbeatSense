@@ -1,28 +1,28 @@
-import type React from "react"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from 'react'
+import { Link } from '@tanstack/react-router'
+import type React from 'react'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from '@/components/ui/card'
 import {
   Field,
   FieldDescription,
   FieldGroup,
   FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
+} from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
 import {
   Select,
-  SelectTrigger,
   SelectContent,
   SelectItem,
+  SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Link } from '@tanstack/react-router'
+} from '@/components/ui/select'
 
 export type SignupValues = {
   firstName: string
@@ -35,7 +35,7 @@ export type SignupValues = {
   confirmPassword: string
 }
 
-type SignupFormProps = Omit<React.ComponentProps<typeof Card>, "onSubmit"> & {
+type SignupFormProps = Omit<React.ComponentProps<typeof Card>, 'onSubmit'> & {
   onSubmit: (values: SignupValues) => void
   isLoading?: boolean
   error?: string
@@ -48,14 +48,14 @@ export function SignupForm({
   ...props
 }: SignupFormProps) {
   const [values, setValues] = useState<SignupValues>({
-    firstName: "",
-    lastName: "",
-    dateOfBirth: "",
-    gender: "male",
-    email: "",
-    phone: "",
-    password: "",
-    confirmPassword: "",
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: 'male',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
   })
   const [localError, setLocalError] = useState<string | null>(null)
 
@@ -72,7 +72,7 @@ export function SignupForm({
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (values.password !== values.confirmPassword) {
-      setLocalError("Passwords do not match")
+      setLocalError('Passwords do not match')
       return
     }
     setLocalError(null)
@@ -98,7 +98,7 @@ export function SignupForm({
                 placeholder="John"
                 required
                 value={values.firstName}
-                onChange={handleChange("firstName")}
+                onChange={handleChange('firstName')}
                 disabled={isLoading}
               />
               <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
@@ -108,7 +108,7 @@ export function SignupForm({
                 placeholder="Doe"
                 required
                 value={values.lastName}
-                onChange={handleChange("lastName")}
+                onChange={handleChange('lastName')}
                 disabled={isLoading}
               />
               <FieldLabel htmlFor="dateOfBirth">Date of Birth</FieldLabel>
@@ -119,14 +119,14 @@ export function SignupForm({
                 max="2025-12-31"
                 required
                 value={values.dateOfBirth}
-                onChange={handleChange("dateOfBirth")}
+                onChange={handleChange('dateOfBirth')}
                 disabled={isLoading}
               />
 
               <FieldLabel htmlFor="gender">Gender</FieldLabel>
               <Select
                 value={values.gender}
-                onValueChange={(val) => handleSelectChange("gender", val)}
+                onValueChange={(val) => handleSelectChange('gender', val)}
               >
                 <SelectTrigger id="gender" className="w-full">
                   <SelectValue placeholder="Select gender" />
@@ -136,7 +136,7 @@ export function SignupForm({
                   <SelectItem value="female">Female</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
-              </Select> 
+              </Select>
             </Field>
             <Field>
               <FieldLabel htmlFor="email">Email</FieldLabel>
@@ -146,10 +146,9 @@ export function SignupForm({
                 placeholder="m@example.com"
                 required
                 value={values.email}
-                onChange={handleChange("email")}
+                onChange={handleChange('email')}
                 disabled={isLoading}
               />
-
             </Field>
             <Field>
               <FieldLabel htmlFor="phone">Phone number</FieldLabel>
@@ -159,7 +158,7 @@ export function SignupForm({
                 placeholder="+31 6 12345678"
                 required
                 value={values.phone}
-                onChange={handleChange("phone")}
+                onChange={handleChange('phone')}
                 disabled={isLoading}
               />
             </Field>
@@ -171,7 +170,7 @@ export function SignupForm({
                 placeholder="Password"
                 required
                 value={values.password}
-                onChange={handleChange("password")}
+                onChange={handleChange('password')}
                 disabled={isLoading}
               />
               <FieldDescription>
@@ -187,7 +186,7 @@ export function SignupForm({
                 type="password"
                 required
                 value={values.confirmPassword}
-                onChange={handleChange("confirmPassword")}
+                onChange={handleChange('confirmPassword')}
                 disabled={isLoading}
               />
               <FieldDescription>Please confirm your password.</FieldDescription>
@@ -205,7 +204,7 @@ export function SignupForm({
                   </FieldDescription>
                 ) : null}
                 <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? "Creating account..." : "Create Account"}
+                  {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Already have an account?{' '}

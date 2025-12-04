@@ -21,7 +21,7 @@ export type Measurement = {
 export type DossierData = {
   personal: PersonalInfo
   heart: HeartHealth
-  measurements: Measurement[]
+  measurements: Array<Measurement>
 }
 
 const STORAGE_KEY = 'heartbeat:dossier'
@@ -57,16 +57,19 @@ export function loadDossierData(): DossierData {
       measurements:
         parsed.measurements?.length && Array.isArray(parsed.measurements)
           ? parsed.measurements.map((m) => ({
-              date: m.date ?? '',
-              time: m.time ?? '',
-              label: m.label ?? '',
-              value: m.value ?? '',
+              date: m.date || '',
+              time: m.time || '',
+              label: m.label || '',
+              value: m.value || '',
             }))
           : defaultDossierData.measurements,
     }
   } catch (error) {
     // fallback to defaults if storage is corrupted
-    console.error('Kon dossier data niet laden, standaardwaarden gebruikt.', error)
+    console.error(
+      'Kon dossier data niet laden, standaardwaarden gebruikt.',
+      error,
+    )
     return defaultDossierData
   }
 }

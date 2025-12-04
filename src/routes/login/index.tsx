@@ -1,7 +1,8 @@
 import { createFileRoute, redirect, useRouter } from '@tanstack/react-router'
 import { useMutation } from '@tanstack/react-query'
-import { LoginForm, type LoginValues } from "@/components/ui/login-form"
-import { auth } from "@/lib/auth"
+import type {LoginValues} from '@/components/ui/login-form';
+import { LoginForm  } from '@/components/ui/login-form'
+import { auth } from '@/lib/auth'
 
 type AuthResponse = {
   token: string
@@ -25,7 +26,7 @@ export const Route = createFileRoute('/login/')({
   component: Page,
   beforeLoad: () => {
     if (auth.isAuthenticated()) {
-      throw redirect({ to: "/home" })
+      throw redirect({ to: '/home' })
     }
   },
 })
@@ -35,23 +36,23 @@ export default function Page() {
 
   const loginMutation = useMutation<AuthResponse, Error, LoginValues>({
     mutationFn: async ({ email, password }: LoginValues) => {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       })
 
       if (!response.ok) {
         const fallback = `${response.status} ${response.statusText}`.trim()
-        const text = await response.text().catch(() => "")
+        const text = await response.text().catch(() => '')
         try {
           const parsed = text ? (JSON.parse(text) as { message?: string }) : {}
           throw new Error(parsed.message ?? fallback)
         } catch {
-          throw new Error(text || fallback || "Login failed")
+          throw new Error(text || fallback || 'Login failed')
         }
       }
 
@@ -64,22 +65,26 @@ export default function Page() {
           data.firstName ??
           (data as Record<string, unknown>).firstname ??
           (data as Record<string, unknown>).FirstName ??
-          "",
-        lastName: data.lastName ?? "",
-        email: data.email ?? "",
-        number: (data as Record<string, unknown>).number ?? data.number ?? "",
+          '',
+        lastName: data.lastName ?? '',
+        email: data.email ?? '',
+        number: (data as Record<string, unknown>).number ?? data.number ?? '',
         gender: (data as Record<string, unknown>).gender ?? data.gender,
-        dateOfBirth: (data as Record<string, unknown>).dateOfBirth ?? data.dateOfBirth ?? "",
+        dateOfBirth:
+          (data as Record<string, unknown>).dateOfBirth ??
+          data.dateOfBirth ??
+          '',
         height: (data as Record<string, unknown>).height ?? data.height,
         weight: (data as Record<string, unknown>).weight ?? data.weight,
-        bloodType: (data as Record<string, unknown>).bloodType ?? data.bloodType,
+        bloodType:
+          (data as Record<string, unknown>).bloodType ?? data.bloodType,
         latestMeasurement: data.latestMeasurement ?? null,
       }
       auth.setAuthenticated(true)
       auth.setToken(normalized.token)
       auth.setUser(normalized)
       auth.markValidatedNow()
-      await router.navigate({ to: "/home" })
+      await router.navigate({ to: '/home' })
     },
   })
 
@@ -95,4 +100,3 @@ export default function Page() {
     </div>
   )
 }
- 

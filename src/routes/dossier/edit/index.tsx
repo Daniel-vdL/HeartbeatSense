@@ -1,16 +1,23 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { createFileRoute, Link, redirect, useRouter } from '@tanstack/react-router'
+import {  useEffect, useState } from 'react'
+import {
+  Link,
+  createFileRoute,
+  redirect,
+  useRouter,
+} from '@tanstack/react-router'
 import { ArrowLeft, Save, User } from 'lucide-react'
+import type {FormEvent} from 'react';
 
+import type { StoredUser } from '@/lib/auth'
+import type {DossierData} from '@/lib/dossierData';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { auth } from '@/lib/auth'
 import {
+  
   defaultDossierData,
   loadDossierData,
-  saveDossierData,
-  type DossierData,
+  saveDossierData
 } from '@/lib/dossierData'
-import type { StoredUser } from '@/lib/auth'
 
 type UserResponse = {
   token?: string
@@ -36,43 +43,47 @@ export const Route = createFileRoute('/dossier/edit/')({
   beforeLoad: async () => {
     const isValid = await auth.validateSession()
     if (!isValid) {
-      throw redirect({ to: "/login" })
+      throw redirect({ to: '/login' })
     }
   },
 })
 
 function RouteComponent() {
   const router = useRouter()
-  const [profile, setProfile] = useState<StoredUser | null>(() => auth.getUser())
-  const [dossierData, setDossierData] = useState<DossierData>(() => loadDossierData())
+  const [profile, setProfile] = useState<StoredUser | null>(() =>
+    auth.getUser(),
+  )
+  const [dossierData, setDossierData] = useState<DossierData>(() =>
+    loadDossierData(),
+  )
   const [saving, setSaving] = useState(false)
   const [apiError, setApiError] = useState<string | null>(null)
   const [formValues, setFormValues] = useState(() => ({
-    firstName: "",
-    lastName: "",
-    number: "",
-    dateOfBirth: "",
-    gender: "",
-    height: "",
-    weight: "",
-    bloodType: "",
+    firstName: '',
+    lastName: '',
+    number: '',
+    dateOfBirth: '',
+    gender: '',
+    height: '',
+    weight: '',
+    bloodType: '',
   }))
   const bg = 'linear-gradient(135deg, #6b5b9f 0%, #8b7db8 50%, #9b8dc8 100%)'
 
   const normalizeDateInput = (value?: string) => {
-    if (!value) return ""
-    return value.includes("T") ? value.split("T")[0] : value
+    if (!value) return ''
+    return value.includes('T') ? value.split('T')[0] : value
   }
 
   useEffect(() => {
     const stored = loadDossierData()
     setDossierData(stored)
     setFormValues({
-      firstName: profile?.firstName ?? "",
-      lastName: profile?.lastName ?? "",
-      number: profile?.number ?? "",
+      firstName: profile?.firstName ?? '',
+      lastName: profile?.lastName ?? '',
+      number: profile?.number ?? '',
       dateOfBirth: normalizeDateInput(profile?.dateOfBirth),
-      gender: profile?.gender ?? "",
+      gender: profile?.gender ?? '',
       height: stored.personal.height,
       weight: stored.personal.weight,
       bloodType: stored.personal.bloodType,
@@ -80,23 +91,30 @@ function RouteComponent() {
   }, [])
 
   useEffect(() => {
-   auth.refreshUserFromApi().then((profile) => {
-     if (profile) {
-       setProfile(profile)
+    auth.refreshUserFromApi().then((userProfile) => {
+      if (userProfile) {
+        setProfile(userProfile)
         setFormValues((prev) => ({
           ...prev,
-          firstName: profile.firstName ?? prev.firstName,
-          lastName: profile.lastName ?? prev.lastName,
-          number: profile.number ?? prev.number,
-          dateOfBirth: normalizeDateInput(profile.dateOfBirth) || prev.dateOfBirth,
-          gender: profile.gender ?? prev.gender,
-          height: profile.height !== undefined && profile.height !== null ? `${profile.height}` : prev.height,
-          weight: profile.weight !== undefined && profile.weight !== null ? `${profile.weight}` : prev.weight,
-          bloodType: profile.bloodType ?? prev.bloodType,
+          firstName: userProfile.firstName || prev.firstName,
+          lastName: userProfile.lastName || prev.lastName,
+          number: userProfile.number || prev.number,
+          dateOfBirth:
+            normalizeDateInput(userProfile.dateOfBirth) || prev.dateOfBirth,
+          gender: userProfile.gender || prev.gender,
+          height:
+            userProfile.height !== undefined
+              ? `${userProfile.height}`
+              : prev.height,
+          weight:
+            userProfile.weight !== undefined
+              ? `${userProfile.weight}`
+              : prev.weight,
+          bloodType: userProfile.bloodType || prev.bloodType,
         }))
       }
-   })
- }, [])
+    })
+  }, [])
 
   const updateField = (field: keyof typeof formValues, value: string) => {
     setFormValues((prev) => ({ ...prev, [field]: value }))
@@ -132,47 +150,64 @@ function RouteComponent() {
     const token = auth.getToken()
     if (!token) {
       auth.clear()
-      await router.navigate({ to: "/login" })
+      await router.navigate({ to: '/login' })
       return
     }
 
     const body: Record<string, unknown> = {}
-    const effectiveFirstName = (formValues.firstName || profile?.firstName || "").trim()
-    const effectiveLastName = (formValues.lastName || profile?.lastName || "").trim()
-    const effectiveGender = (formValues.gender || profile?.gender || "").trim() || undefined
-    const effectiveDob = validateDate(formValues.dateOfBirth || normalizeDateInput(profile?.dateOfBirth) || "")
+    const effectiveFirstName = (
+      formValues.firstName ||
+      profile?.firstName ||
+      ''
+    ).trim()
+    const effectiveLastName = (
+      formValues.lastName ||
+      profile?.lastName ||
+      ''
+    ).trim()
+    const effectiveGender =
+      (formValues.gender || profile?.gender || '').trim() || undefined
+    const effectiveDob = validateDate(
+      formValues.dateOfBirth || normalizeDateInput(profile?.dateOfBirth) || '',
+    )
 
     const heightValue = toNumericOrString(
-      formValues.height || (profile?.height !== undefined && profile?.height !== null ? String(profile.height) : "")
+      formValues.height ||
+        (profile?.height !== undefined ? String(profile.height) : ''),
     )
     const weightValue = toNumericOrString(
-      formValues.weight || (profile?.weight !== undefined && profile?.weight !== null ? String(profile.weight) : "")
+      formValues.weight ||
+        (profile?.weight !== undefined ? String(profile.weight) : ''),
     )
 
     if (heightValue === null || weightValue === null) {
-      setApiError("Gebruik alleen cijfers voor lengte/gewicht (eventueel met punt of komma).")
+      setApiError(
+        'Gebruik alleen cijfers voor lengte/gewicht (eventueel met punt of komma).',
+      )
       setSaving(false)
       return
     }
 
-    const numberValue = validateNumberString(formValues.number || profile?.number || "")
+    const numberValue = validateNumberString(
+      formValues.number || profile?.number || '',
+    )
     if (!effectiveFirstName || !effectiveLastName) {
-      setApiError("Voornaam en achternaam zijn verplicht.")
+      setApiError('Voornaam en achternaam zijn verplicht.')
       setSaving(false)
       return
     }
     if (numberValue === null) {
-      setApiError("Telefoonnummer mag alleen cijfers bevatten.")
+      setApiError('Telefoonnummer mag alleen cijfers bevatten.')
       setSaving(false)
       return
     }
     if (numberValue === undefined) {
-      setApiError("Telefoonnummer is verplicht.")
+      setApiError('Telefoonnummer is verplicht.')
       setSaving(false)
       return
     }
     if (effectiveDob === null) {
-      setApiError("Geboortedatum is ongeldig. Gebruik formaat YYYY-MM-DD.")
+      setApiError('Geboortedatum is ongeldig. Gebruik formaat YYYY-MM-DD.')
       setSaving(false)
       return
     }
@@ -186,33 +221,34 @@ function RouteComponent() {
     if (effectiveGender) body.gender = effectiveGender
     if (heightValue !== undefined) body.height = heightValue
     if (weightValue !== undefined) body.weight = weightValue
-    if (formValues.bloodType || profile?.bloodType) body.bloodType = formValues.bloodType || profile?.bloodType
+    if (formValues.bloodType || profile?.bloodType)
+      body.bloodType = formValues.bloodType || profile?.bloodType
 
     if (Object.keys(body).length === 0) {
-      setApiError("Geen velden om op te slaan. Vul iets in en probeer opnieuw.")
+      setApiError('Geen velden om op te slaan. Vul iets in en probeer opnieuw.')
       setSaving(false)
       return
     }
 
     try {
-      const response = await fetch("/api/users/me", {
-        method: "PUT",
+      const response = await fetch('/api/users/me', {
+        method: 'PUT',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
         body: JSON.stringify(body),
       })
 
       if (response.status === 401 || response.status === 403) {
         auth.clear()
-        await router.navigate({ to: "/login" })
+        await router.navigate({ to: '/login' })
         return
       }
 
       if (!response.ok) {
-        const text = await response.text().catch(() => "")
+        const text = await response.text().catch(() => '')
         setApiError(text || `${response.status} ${response.statusText}`)
         return
       }
@@ -236,8 +272,10 @@ function RouteComponent() {
       setProfile(auth.getUser())
       const updated: DossierData = {
         personal: {
-          height: data.height !== undefined && data.height !== null ? `${data.height}` : formValues.height,
-          weight: data.weight !== undefined && data.weight !== null ? `${data.weight}` : formValues.weight,
+          height:
+            data.height !== undefined ? `${data.height}` : formValues.height,
+          weight:
+            data.weight !== undefined ? `${data.weight}` : formValues.weight,
           bloodType: data.bloodType ?? formValues.bloodType,
         },
         heart: dossierData.heart,
@@ -245,9 +283,9 @@ function RouteComponent() {
       }
       saveDossierData(updated)
       setDossierData(updated)
-      await router.navigate({ to: "/dossier" })
+      await router.navigate({ to: '/dossier' })
     } catch (error) {
-      setApiError(error instanceof Error ? error.message : "Onbekende fout")
+      setApiError(error instanceof Error ? error.message : 'Onbekende fout')
     } finally {
       setSaving(false)
     }
@@ -255,20 +293,20 @@ function RouteComponent() {
 
   const handleReset = () => {
     setFormValues({
-      firstName: "",
-      lastName: "",
-      number: "",
-      dateOfBirth: "",
-      gender: "",
-      height: "",
-      weight: "",
-      bloodType: "",
+      firstName: '',
+      lastName: '',
+      number: '',
+      dateOfBirth: '',
+      gender: '',
+      height: '',
+      weight: '',
+      bloodType: '',
     })
-   const reset: DossierData = {
-     ...defaultDossierData,
-   }
-   saveDossierData(reset)
-   setDossierData(reset)
+    const reset: DossierData = {
+      ...defaultDossierData,
+    }
+    saveDossierData(reset)
+    setDossierData(reset)
   }
 
   return (
@@ -276,7 +314,9 @@ function RouteComponent() {
       <header className="p-6 flex items-center justify-between">
         <div>
           <div className="text-white text-sm opacity-80">Mijn Dossier</div>
-          <h1 className="brand-title text-white text-3xl font-bold">Gegevens bewerken</h1>
+          <h1 className="brand-title text-white text-3xl font-bold">
+            Gegevens bewerken
+          </h1>
         </div>
         <Link
           to="/dossier"
@@ -287,7 +327,10 @@ function RouteComponent() {
         </Link>
       </header>
 
-      <form onSubmit={handleSubmit} className="flex-1 px-4 sm:px-8 pb-16 max-w-5xl mx-auto w-full space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="flex-1 px-4 sm:px-8 pb-16 max-w-5xl mx-auto w-full space-y-6"
+      >
         <Card className="bg-white/10 border-white/20 backdrop-blur-md">
           <CardHeader>
             <div className="flex items-center gap-3">
@@ -296,44 +339,64 @@ function RouteComponent() {
               </div>
               <CardTitle className="text-white">Persoonlijke Info</CardTitle>
             </div>
-      </CardHeader>
-      <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <InputField label="Voornaam" value={formValues.firstName} onChange={(val) => updateField("firstName", val)} />
-        <InputField label="Achternaam" value={formValues.lastName} onChange={(val) => updateField("lastName", val)} />
-        <InputField label="Telefoonnummer" value={formValues.number} onChange={(val) => updateField("number", val)} />
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <InputField
+              label="Voornaam"
+              value={formValues.firstName}
+              onChange={(val) => updateField('firstName', val)}
+            />
+            <InputField
+              label="Achternaam"
+              value={formValues.lastName}
+              onChange={(val) => updateField('lastName', val)}
+            />
+            <InputField
+              label="Telefoonnummer"
+              value={formValues.number}
+              onChange={(val) => updateField('number', val)}
+            />
             <InputField
               label="Geboortedatum"
               value={formValues.dateOfBirth}
-              onChange={(val) => updateField("dateOfBirth", val)}
+              onChange={(val) => updateField('dateOfBirth', val)}
               inputType="date"
             />
             <SelectField
               label="Geslacht"
               value={formValues.gender}
-              onChange={(val) => updateField("gender", val)}
+              onChange={(val) => updateField('gender', val)}
               options={[
-                { value: "", label: "Kies..." },
-                { value: "male", label: "Man" },
-                { value: "female", label: "Vrouw" },
-                { value: "other", label: "Anders" },
+                { value: '', label: 'Kies...' },
+                { value: 'male', label: 'Man' },
+                { value: 'female', label: 'Vrouw' },
+                { value: 'other', label: 'Anders' },
               ]}
             />
-            <InputField label="Lengte (cm)" value={formValues.height} onChange={(val) => updateField("height", val)} />
-            <InputField label="Gewicht (kg)" value={formValues.weight} onChange={(val) => updateField("weight", val)} />
+            <InputField
+              label="Lengte (cm)"
+              value={formValues.height}
+              onChange={(val) => updateField('height', val)}
+            />
+            <InputField
+              label="Gewicht (kg)"
+              value={formValues.weight}
+              onChange={(val) => updateField('weight', val)}
+            />
             <SelectField
               label="Bloedgroep"
               value={formValues.bloodType}
-              onChange={(val) => updateField("bloodType", val)}
+              onChange={(val) => updateField('bloodType', val)}
               options={[
-                { value: "", label: "Kies..." },
-                { value: "AB+", label: "AB+" },
-                { value: "AB-", label: "AB-" },
-                { value: "A+", label: "A+" },
-                { value: "A-", label: "A-" },
-                { value: "B+", label: "B+" },
-                { value: "B-", label: "B-" },
-                { value: "O+", label: "O+" },
-                { value: "O-", label: "O-" },
+                { value: '', label: 'Kies...' },
+                { value: 'AB+', label: 'AB+' },
+                { value: 'AB-', label: 'AB-' },
+                { value: 'A+', label: 'A+' },
+                { value: 'A-', label: 'A-' },
+                { value: 'B+', label: 'B+' },
+                { value: 'B-', label: 'B-' },
+                { value: 'O+', label: 'O+' },
+                { value: 'O-', label: 'O-' },
               ]}
             />
           </CardContent>
@@ -355,7 +418,7 @@ function RouteComponent() {
             className="w-full sm:w-auto cursor-pointer flex items-center justify-center gap-2 px-5 py-2 rounded-lg bg-red-300/80 hover:bg-red-300 text-white font-semibold transition-colors shadow-lg disabled:opacity-60 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
-            {saving ? "Opslaan..." : "Opslaan"}
+            {saving ? 'Opslaan...' : 'Opslaan'}
           </button>
         </div>
       </form>
@@ -368,7 +431,7 @@ function InputField({
   value,
   onChange,
   disabled = false,
-  inputType = "text",
+  inputType = 'text',
 }: {
   label: string
   value: string
@@ -401,7 +464,7 @@ function SelectField({
   label: string
   value: string
   onChange?: (value: string) => void
-  options: { value: string; label: string }[]
+  options: Array<{ value: string; label: string }>
   disabled?: boolean
 }) {
   return (
